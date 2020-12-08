@@ -4,6 +4,8 @@ import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
+import java.util.Vector;
+import java.io.*;
 
 import javax.servlet.http.HttpSession;
 
@@ -30,6 +32,7 @@ import com.intuit.ipp.data.Error;
 import com.intuit.ipp.data.IntuitEntity;
 import com.intuit.ipp.data.Invoice;
 import com.intuit.ipp.data.Item;
+import com.intuit.ipp.data.ItemGroupDetail;
 import com.intuit.ipp.data.ItemTypeEnum;
 import com.intuit.ipp.data.Line;
 import com.intuit.ipp.data.LineDetailTypeEnum;
@@ -39,6 +42,33 @@ import com.intuit.ipp.exception.FMSException;
 import com.intuit.ipp.exception.InvalidTokenException;
 import com.intuit.ipp.services.DataService;
 import com.intuit.ipp.services.QueryResult;
+
+class InventoryList{
+	String name;
+	BigDecimal amount;
+	String sku;
+	BigDecimal price;
+	ItemGroupDetail category;
+	InventoryList(String name, BigDecimal amount, String sku, BigDecimal price, ItemGroupDetail category){
+		this.name = name;
+		this.amount = amount;
+		this.sku = sku;
+		this.price = price;
+		this.category = category;
+	}
+	void printInventoryList()
+	{
+		System.out.println(this.name);
+		System.out.println(this.amount);
+		System.out.println(this.sku);
+		System.out.println(this.price);
+		System.out.println(this.category);
+	}
+	String getILName()
+	{
+		return this.name;
+	}
+}
 
 @Controller
 public class InventoryController {
@@ -61,7 +91,7 @@ public class InventoryController {
 	 * @return
 	 */
 	@ResponseBody
-	@RequestMapping("/inventory_test")
+	@RequestMapping("/inventory_list")
 	public String callInventoryConcept(HttpSession session) {
 
 		String realmId = (String)session.getAttribute("realmId");
@@ -75,21 +105,43 @@ public class InventoryController {
 			// Get DataService
 			DataService service = helper.getDataService(realmId, accessToken);
 
-			// Add inventory item - with initial Quantity on Hand of 10
-			Item item = getItemWithAllFields(service);
-			Item savedItem = service.add(item);
+			String ITEM_QUERY = "select * from Item maxresults 99";
+			QueryResult ItemList = service.executeQuery(ITEM_QUERY);
+			List<? extends IEntity> entities = ItemList.getEntities();
+			//System.out.println(entities.size());
 
-			/*// Create invoice (for 1 item) using the item created above
-			Customer customer = getCustomerWithAllFields();
-			Customer savedCustomer = service.add(customer);
-			Invoice invoice = getInvoiceFields(savedCustomer, savedItem);
-			service.add(invoice);*/
+			Vector<InventoryList> InventoryListContainer = new Vector<InventoryList>(entities.size());
+
+			for (int i=0; i<entities.size(); i++)
+			{
+				Item tempItem = ((Item)entities.get(i));
+				if (tempItem.getType() != ItemTypeEnum.CATEGORY){
+					InventoryListContainer.add(new InventoryList(tempItem.getName(), tempItem.getQtyOnHand(), tempItem.getSku(), tempItem.getUnitPrice(), tempItem.getItemGroupDetail()));
+				}
+			}
+
+			//for (int x=0; x<InventoryListContainer.size(); x++)
+			//	InventoryListContainer.get(x).printInventoryList();
+
+			//JSONObject obj = new JSONObject(ItemList);
+
+			//JSONObject firstItem = obj.getJSONObject("response").getJSONArray("items").getJSONObject(0);
+			//System.out.println(firstItem.getInt("id"));
+
+			// Add inventory item - with initial Quantity on Hand of 10
+			//Item item = getItemWithAllFields(service);
+			//Item savedItem = service.add(item);
+			
 
 			// Query inventory item - there should be 9 items now!
-			Item itemsRemaining = service.findById(savedItem);
+
+			//Item itemsRemaining = service.findById(savedItem);
+			//System.out.println(itemsRemaining);
+			//System.out.println(itemsRemaining.getQtyOnHand());
+			
 
 			// Return response back - take a look at "qtyOnHand" in the output (should be 9)
-			return createResponse(itemsRemaining);
+			return createResponse(InventoryListContainer.get(11).getILName());
 
 		} catch (InvalidTokenException e) {
 			return new JSONObject().put("response", "InvalidToken - Refresh token and try again").toString();
