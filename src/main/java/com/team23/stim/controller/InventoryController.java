@@ -126,8 +126,8 @@ public class InventoryController {
 			for (int x=0; x<InventoryListContainer.size(); x++)
 			{
 				outputMessage += (InventoryListContainer.get(x).getName() + "<br />");
-				outputMessage += ((InventoryListContainer.get(x).getSku() != null) ? (InventoryListContainer.get(x).getSku() + "Sku: " + "<br />") : "");
-				outputMessage += ((InventoryListContainer.get(x).getQtyOnHand() != null) ? (InventoryListContainer.get(x).getQtyOnHand() + "Qty: " + "<br />") : "");
+				outputMessage += ((InventoryListContainer.get(x).getSku() != null) ? ("Sku: " + InventoryListContainer.get(x).getSku() + "<br />") : "");
+				outputMessage += ((InventoryListContainer.get(x).getQtyOnHand() != null) ? ("Qty: " + InventoryListContainer.get(x).getQtyOnHand() + "<br />") : "");
 				//outputMessage += "Category: " + (InventoryListContainer.get(x).getParentRef().getName() + "<br />");
 				outputMessage += "Price: " + (InventoryListContainer.get(x).getUnitPrice() + "<br />");
 				outputMessage += "<br />";
@@ -174,8 +174,48 @@ public class InventoryController {
 			//Creates output for functions.html
 			String outputMessage = "";
 			outputMessage += (savedItem.getName() + "<br />");
-			outputMessage += ((savedItem.getSku() != null) ? (savedItem.getSku() + "Sku: " + "<br />") : "");
-			outputMessage += ((savedItem.getQtyOnHand() != null) ? (savedItem.getQtyOnHand() + "Qty: " + "<br />") : "");
+			outputMessage += ((savedItem.getSku() != null) ? ("Sku: " + savedItem.getSku() + "<br />") : "");
+			outputMessage += ((savedItem.getQtyOnHand() != null) ? ("Qty: " + savedItem.getQtyOnHand() + "<br />") : "");
+			//outputMessage += "Category: " + (savedItem.getParentRef().getName()) + "<br />";
+			outputMessage += "Price: " + (savedItem.getUnitPrice() + "<br />");
+			outputMessage += "<br />";
+
+			// Return response back
+			return createResponse(outputMessage);
+
+		} catch (InvalidTokenException e) {
+			return new JSONObject().put("response", "InvalidToken - Refresh token and try again").toString();
+		} catch (FMSException e) {
+			List<Error> list = e.getErrorList();
+			list.forEach(error -> logger.error("Error while calling the API :: " + error.getMessage()));
+			return new JSONObject().put("response","Failed").toString();
+		}
+	}
+
+	@ResponseBody
+	@RequestMapping("/createSubItem")
+	public String addSubItem(HttpSession session) {
+
+		String realmId = (String)session.getAttribute("realmId");
+		if (StringUtils.isEmpty(realmId)) {
+			return new JSONObject().put("response", "No realm ID.  QBO calls only work if the accounting scope was passed!").toString();
+		}
+		String accessToken = (String)session.getAttribute("access_token");
+
+		try {
+
+			// Get DataService
+			DataService service = helper.getDataService(realmId, accessToken);
+
+			// Add main item - with initial Quantity on Hand of 450
+			Item item = getItemWithAllFields(service, "Sub");
+			Item savedItem = service.add(item);
+
+			//Creates output for functions.html
+			String outputMessage = "";
+			outputMessage += (savedItem.getName() + "<br />");
+			outputMessage += ((savedItem.getSku() != null) ? ("Sku: " + savedItem.getSku() + "<br />") : "");
+			outputMessage += ((savedItem.getQtyOnHand() != null) ? ("Qty: " + savedItem.getQtyOnHand() + "<br />") : "");
 			//outputMessage += "Category: " + (savedItem.getParentRef().getName()) + "<br />";
 			outputMessage += "Price: " + (savedItem.getUnitPrice() + "<br />");
 			outputMessage += "<br />";
