@@ -43,7 +43,7 @@ import com.intuit.ipp.exception.InvalidTokenException;
 import com.intuit.ipp.services.DataService;
 import com.intuit.ipp.services.QueryResult;
 
-class InventoryList{
+/*class InventoryList{
 	String name;
 	BigDecimal amount;
 	String sku;
@@ -68,7 +68,7 @@ class InventoryList{
 	{
 		return this.name;
 	}
-}
+}*/
 
 @Controller
 public class InventoryController {
@@ -110,13 +110,13 @@ public class InventoryController {
 			List<? extends IEntity> entities = ItemList.getEntities();
 			//System.out.println(entities.size());
 
-			Vector<InventoryList> InventoryListContainer = new Vector<InventoryList>(entities.size());
+			Vector<Item> InventoryListContainer = new Vector<Item>(entities.size());
 
 			for (int i=0; i<entities.size(); i++)
 			{
 				Item tempItem = ((Item)entities.get(i));
 				if (tempItem.getType() != ItemTypeEnum.CATEGORY){
-					InventoryListContainer.add(new InventoryList(tempItem.getName(), tempItem.getQtyOnHand(), tempItem.getSku(), tempItem.getUnitPrice(), tempItem.getItemGroupDetail()));
+					InventoryListContainer.add(tempItem);
 				}
 			}
 
@@ -141,7 +141,7 @@ public class InventoryController {
 			
 
 			// Return response back - take a look at "qtyOnHand" in the output (should be 9)
-			return createResponse(InventoryListContainer.get(11).getILName());
+			return createResponse(InventoryListContainer.get(8).getName());
 
 		} catch (InvalidTokenException e) {
 			return new JSONObject().put("response", "InvalidToken - Refresh token and try again").toString();
