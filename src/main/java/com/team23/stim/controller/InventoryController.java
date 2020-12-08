@@ -119,10 +119,15 @@ public class InventoryController {
 					InventoryListContainer.add(tempItem);
 				}
 			}
-
-			//for (int x=0; x<InventoryListContainer.size(); x++)
-			//	InventoryListContainer.get(x).printInventoryList();
-
+			String outputMessage = "";
+			for (int x=0; x<InventoryListContainer.size(); x++)
+			{
+				outputMessage += (InventoryListContainer.get(x).getName() + "<br />");
+				outputMessage += ((InventoryListContainer.get(x).getSku() != null) ? (InventoryListContainer.get(x).getSku() + "<br />") : "");
+				outputMessage += ((InventoryListContainer.get(x).getQtyOnHand() != null) ? (InventoryListContainer.get(x).getQtyOnHand() + "<br />") : "");
+				outputMessage += (InventoryListContainer.get(x).getUnitPrice() + "<br />");
+				outputMessage += "<br />";
+			}
 			//JSONObject obj = new JSONObject(ItemList);
 
 			//JSONObject firstItem = obj.getJSONObject("response").getJSONArray("items").getJSONObject(0);
@@ -141,7 +146,7 @@ public class InventoryController {
 			
 
 			// Return response back - take a look at "qtyOnHand" in the output (should be 9)
-			return createResponse(InventoryListContainer.get(8).getName());
+			return createResponse(outputMessage);
 
 		} catch (InvalidTokenException e) {
 			return new JSONObject().put("response", "InvalidToken - Refresh token and try again").toString();
