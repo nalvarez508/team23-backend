@@ -11,7 +11,7 @@
     }
     function apiCall() {
       $("#result").html('Loading...')
-      $.get("/inventory_test", function(data) {
+      $.get("/inventory_list", function(data) {
         $("#result").html(data)
       })
     }
@@ -20,7 +20,7 @@
 </head>
 <body>
   <a href="/">STIM Authorization Page</a>
-  <h3>Connected!</h3>
+  <h3>Functions Page</h3>
   
   <div>
     <button onclick="apiCall()">Return Item Count</button>
