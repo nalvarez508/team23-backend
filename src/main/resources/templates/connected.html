@@ -1,0 +1,47 @@
+<!DOCTYPE HTML>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+  <title>STIM</title>
+  <link rel="stylesheet" type="text/css" href="../static/css/style.css" th:href="@{css/style.css}"/>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.1.1/jquery.min.js"></script>
+  <script>
+    if(window.opener) {
+      window.opener.location.href = '/connected'
+      window.close()
+    }
+    function apiCall() {
+      $("#result").html('Loading...')
+      $.get("/getCompanyInfo", function(data) {
+        $("#result").html(data)
+      })
+    }
+
+  </script>
+</head>
+<body>
+  <a href="/">STIM Authorization Page</a>
+  <h3>Connected!</h3>
+  
+  <div>
+    <button onclick="launchPopup('about:blank')">Launch STIM</button>
+    <br /><br />
+    <div><code id="result"></code></div>
+    </div>
+
+  
+  <script src="https://unpkg.com/react@17/umd/react.development.js" crossorigin></script>  <script src="https://unpkg.com/react-dom@17/umd/react-dom.development.js" crossorigin></script>
+  <script src="../ApplicationUI.js"></script>
+
+  <script>
+    function launchPopup(path) {
+      var win;
+      var checkConnect;
+      var parameters = "location=1,width=800,height=650";
+      parameters += ",left=" + (screen.width - 800) / 2 + ",top=" + (screen.height - 650) / 2;
+      // Launch Popup
+      win = window.open(path, 'connectPopup', parameters);
+    }
+  </script>
+
+</body>
+</html>
