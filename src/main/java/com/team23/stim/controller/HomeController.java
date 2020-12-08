@@ -17,10 +17,6 @@ import com.intuit.oauth2.config.OAuth2Config;
 import com.intuit.oauth2.config.Scope;
 import com.intuit.oauth2.exception.InvalidRequestException;
 
-/**
- * @author dderose
- *
- */
 @Controller
 public class HomeController {
 	

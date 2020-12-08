@@ -26,10 +26,6 @@ import com.intuit.oauth2.client.OAuth2PlatformClient;
 import com.intuit.oauth2.data.BearerTokenResponse;
 import com.intuit.oauth2.exception.OAuthException;
 
-/**
- * @author dderose
- *
- */
 @Controller
 public class QBOController {
 	
