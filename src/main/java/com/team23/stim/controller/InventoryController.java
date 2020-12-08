@@ -40,10 +40,6 @@ import com.intuit.ipp.exception.InvalidTokenException;
 import com.intuit.ipp.services.DataService;
 import com.intuit.ipp.services.QueryResult;
 
-/**
- * @author bcole
- *
- */
 @Controller
 public class InventoryController {
 
@@ -55,8 +51,54 @@ public class InventoryController {
 
 	private static final Logger logger = Logger.getLogger(InventoryController.class);
 	
-	private static final String ACCOUNT_QUERY = "select * from Account where AccountType='Sales of Product Income' maxresults 1";
+	private static final String ACCOUNT_QUERY = "select * from Account where AccountType='%s' and AccountSubType='%s' maxresults 1";
 
+
+/**
+	 * Sample QBO API call using OAuth2 tokens
+	 *
+	 * @param session
+	 * @return
+	 */
+	@ResponseBody
+	@RequestMapping("/inventory_test")
+	public String callInventoryConcept(HttpSession session) {
+
+		String realmId = (String)session.getAttribute("realmId");
+		if (StringUtils.isEmpty(realmId)) {
+			return new JSONObject().put("response", "No realm ID.  QBO calls only work if the accounting scope was passed!").toString();
+		}
+		String accessToken = (String)session.getAttribute("access_token");
+
+		try {
+
+			// Get DataService
+			DataService service = helper.getDataService(realmId, accessToken);
+
+			// Add inventory item - with initial Quantity on Hand of 10
+			Item item = getItemWithAllFields(service);
+			Item savedItem = service.add(item);
+
+			/*// Create invoice (for 1 item) using the item created above
+			Customer customer = getCustomerWithAllFields();
+			Customer savedCustomer = service.add(customer);
+			Invoice invoice = getInvoiceFields(savedCustomer, savedItem);
+			service.add(invoice);*/
+
+			// Query inventory item - there should be 9 items now!
+			Item itemsRemaining = service.findById(savedItem);
+
+			// Return response back - take a look at "qtyOnHand" in the output (should be 9)
+			return createResponse(itemsRemaining);
+
+		} catch (InvalidTokenException e) {
+			return new JSONObject().put("response", "InvalidToken - Refresh token and try again").toString();
+		} catch (FMSException e) {
+			List<Error> list = e.getErrorList();
+			list.forEach(error -> logger.error("Error while calling the API :: " + error.getMessage()));
+			return new JSONObject().put("response","Failed").toString();
+		}
+	}
 
 	/**
 	 * Sample QBO API call using OAuth2 tokens
@@ -64,6 +106,7 @@ public class InventoryController {
 	 * @param session
 	 * @return
 	 */
+	/*
 	@ResponseBody
 	@RequestMapping("/inventory")
 	public String callInventoryConcept(HttpSession session) {
@@ -102,7 +145,7 @@ public class InventoryController {
 			list.forEach(error -> logger.error("Error while calling the API :: " + error.getMessage()));
 			return new JSONObject().put("response","Failed").toString();
 		}
-	}
+	}*/
 
 
 	/**
