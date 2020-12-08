@@ -39,6 +39,11 @@ public class HomeController {
 	public String testpage(){
 		return "testpage";
 	}
+
+	@RequestMapping("/functions")
+	public String functions(){
+		return "functions";
+	}
 	/**
 	 * Controller mapping for connectToQuickbooks button
 	 * @return
