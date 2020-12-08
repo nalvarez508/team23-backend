@@ -85,14 +85,14 @@ public class InventoryController {
 
 
 /**
-	 * Sample QBO API call using OAuth2 tokens
+	 * API call with OAuth2 to return inventory list
 	 *
 	 * @param session
 	 * @return
 	 */
 	@ResponseBody
 	@RequestMapping("/inventory_list")
-	public String callInventoryConcept(HttpSession session) {
+	public String getInventoryList(HttpSession session) {
 
 		String realmId = (String)session.getAttribute("realmId");
 		if (StringUtils.isEmpty(realmId)) {
@@ -106,46 +106,34 @@ public class InventoryController {
 			DataService service = helper.getDataService(realmId, accessToken);
 
 			String ITEM_QUERY = "select * from Item maxresults 99";
-			QueryResult ItemList = service.executeQuery(ITEM_QUERY);
-			List<? extends IEntity> entities = ItemList.getEntities();
-			//System.out.println(entities.size());
+			QueryResult ItemList = service.executeQuery(ITEM_QUERY); //Creates QueryResult object with inventory
+			List<? extends IEntity> entities = ItemList.getEntities(); //Creates list of entities
 
+			//Stores entities in vector
 			Vector<Item> InventoryListContainer = new Vector<Item>(entities.size());
 
+			//Populates vector with items
 			for (int i=0; i<entities.size(); i++)
 			{
 				Item tempItem = ((Item)entities.get(i));
-				if (tempItem.getType() != ItemTypeEnum.CATEGORY){
+				if (tempItem.getType() != ItemTypeEnum.CATEGORY){ //Items of type CATEGORY are skipped
 					InventoryListContainer.add(tempItem);
 				}
 			}
+
+			//Creates output for functions.html
 			String outputMessage = "";
 			for (int x=0; x<InventoryListContainer.size(); x++)
 			{
 				outputMessage += (InventoryListContainer.get(x).getName() + "<br />");
-				outputMessage += ((InventoryListContainer.get(x).getSku() != null) ? (InventoryListContainer.get(x).getSku() + "<br />") : "");
-				outputMessage += ((InventoryListContainer.get(x).getQtyOnHand() != null) ? (InventoryListContainer.get(x).getQtyOnHand() + "<br />") : "");
-				outputMessage += (InventoryListContainer.get(x).getUnitPrice() + "<br />");
+				outputMessage += ((InventoryListContainer.get(x).getSku() != null) ? (InventoryListContainer.get(x).getSku() + "Sku: " + "<br />") : "");
+				outputMessage += ((InventoryListContainer.get(x).getQtyOnHand() != null) ? (InventoryListContainer.get(x).getQtyOnHand() + "Qty: " + "<br />") : "");
+				//outputMessage += "Category: " + (InventoryListContainer.get(x).getParentRef().getName() + "<br />");
+				outputMessage += "Price: " + (InventoryListContainer.get(x).getUnitPrice() + "<br />");
 				outputMessage += "<br />";
 			}
-			//JSONObject obj = new JSONObject(ItemList);
 
-			//JSONObject firstItem = obj.getJSONObject("response").getJSONArray("items").getJSONObject(0);
-			//System.out.println(firstItem.getInt("id"));
-
-			// Add inventory item - with initial Quantity on Hand of 10
-			//Item item = getItemWithAllFields(service);
-			//Item savedItem = service.add(item);
-			
-
-			// Query inventory item - there should be 9 items now!
-
-			//Item itemsRemaining = service.findById(savedItem);
-			//System.out.println(itemsRemaining);
-			//System.out.println(itemsRemaining.getQtyOnHand());
-			
-
-			// Return response back - take a look at "qtyOnHand" in the output (should be 9)
+			// Return response back
 			return createResponse(outputMessage);
 
 		} catch (InvalidTokenException e) {
@@ -163,10 +151,10 @@ public class InventoryController {
 	 * @param session
 	 * @return
 	 */
-	/*
+	
 	@ResponseBody
-	@RequestMapping("/inventory")
-	public String callInventoryConcept(HttpSession session) {
+	@RequestMapping("/createMainItem")
+	public String addMainItem(HttpSession session) {
 
 		String realmId = (String)session.getAttribute("realmId");
 		if (StringUtils.isEmpty(realmId)) {
@@ -179,21 +167,21 @@ public class InventoryController {
 			// Get DataService
 			DataService service = helper.getDataService(realmId, accessToken);
 
-			// Add inventory item - with initial Quantity on Hand of 10
-			Item item = getItemWithAllFields(service);
+			// Add main item - with initial Quantity on Hand of 450
+			Item item = getItemWithAllFields(service, "Main");
 			Item savedItem = service.add(item);
 
-			// Create invoice (for 1 item) using the item created above
-			Customer customer = getCustomerWithAllFields();
-			Customer savedCustomer = service.add(customer);
-			Invoice invoice = getInvoiceFields(savedCustomer, savedItem);
-			service.add(invoice);
+			//Creates output for functions.html
+			String outputMessage = "";
+			outputMessage += (savedItem.getName() + "<br />");
+			outputMessage += ((savedItem.getSku() != null) ? (savedItem.getSku() + "Sku: " + "<br />") : "");
+			outputMessage += ((savedItem.getQtyOnHand() != null) ? (savedItem.getQtyOnHand() + "Qty: " + "<br />") : "");
+			//outputMessage += "Category: " + (savedItem.getParentRef().getName()) + "<br />";
+			outputMessage += "Price: " + (savedItem.getUnitPrice() + "<br />");
+			outputMessage += "<br />";
 
-			// Query inventory item - there should be 9 items now!
-			Item itemsRemaining = service.findById(savedItem);
-
-			// Return response back - take a look at "qtyOnHand" in the output (should be 9)
-			return createResponse(itemsRemaining);
+			// Return response back
+			return createResponse(outputMessage);
 
 		} catch (InvalidTokenException e) {
 			return new JSONObject().put("response", "InvalidToken - Refresh token and try again").toString();
@@ -202,7 +190,7 @@ public class InventoryController {
 			list.forEach(error -> logger.error("Error while calling the API :: " + error.getMessage()));
 			return new JSONObject().put("response","Failed").toString();
 		}
-	}*/
+	}
 
 
 	/**
@@ -211,14 +199,15 @@ public class InventoryController {
 	 * @return
 	 * @throws FMSException
 	 */
-	private Item getItemWithAllFields(DataService service) throws FMSException {
+	private Item getItemWithAllFields(DataService service, String category) throws FMSException {
 		Item item = new Item();
 		item.setType(ItemTypeEnum.INVENTORY);
-		item.setName("Inventory Item " + RandomStringUtils.randomAlphanumeric(5));
+		item.setName("Test " + category + " Item " + RandomStringUtils.randomAlphanumeric(5));
 		item.setInvStartDate(new Date());
+		//item.setParentRef(ReferenceType);
 
 		// Start with 10 items
-		item.setQtyOnHand(BigDecimal.valueOf(10));
+		item.setQtyOnHand(BigDecimal.valueOf(450));
 		item.setTrackQtyOnHand(true);
 
 		Account incomeBankAccount = getIncomeBankAccount(service);
