@@ -16,7 +16,7 @@ public class SubItem {
     this.sku = sku;
     this.qty = qty;
     this.muq = muq;
-    this.muqType = (muq + " " + muqType);
+    this.muqType = (muqType);
   }
 
   String getName()
