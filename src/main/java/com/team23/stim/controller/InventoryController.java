@@ -1,4 +1,5 @@
 package com.team23.stim.controller;
+import com.team23.stim.classes.*;
 
 import java.math.BigDecimal;
 import java.util.ArrayList;
