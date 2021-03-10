@@ -85,6 +85,19 @@ public class InventoryController {
 	private static final String ACCOUNT_QUERY = "select * from Account where AccountType='%s' and AccountSubType='%s' maxresults 1";
 
 
+	@ResponseBody
+	@RequestMapping("/testEndpoint")
+	public String returnStringToYou(HttpSession session)
+	{
+		String realmId = (String)session.getAttribute("realmId");
+		if (StringUtils.isEmpty(realmId)) {
+			return new JSONObject().put("response", "No realm ID.  QBO calls only work if the accounting scope was passed!").toString();
+		}
+		String accessToken = (String)session.getAttribute("access_token");
+
+		return createResponse("Endpoint call successful!")
+	}
+
 /**
 	 * API call with OAuth2 to return inventory list
 	 *
