@@ -95,7 +95,7 @@ public class InventoryController {
 		}
 		String accessToken = (String)session.getAttribute("access_token");
 
-		return createResponse("Endpoint call successful!")
+		return createResponse("Endpoint call successful!");
 	}
 
 /**
