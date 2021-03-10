@@ -1,4 +1,4 @@
-package com.team23.stim.controller;
+/*package com.team23.stim.controller;
 import com.team23.stim.classes.*;
 import com.team23.stim.controller.InventoryController;
 import com.team23.stim.controller.DatabaseController;
@@ -57,7 +57,7 @@ public class BundleController {
 
 	private static final Logger logger = Logger.getLogger(InventoryController.class);
 	
-	private static final String ACCOUNT_QUERY = "select * from Account where AccountType='%s' and AccountSubType='%s' maxresults 1";*/
+	private static final String ACCOUNT_QUERY = "select * from Account where AccountType='%s' and AccountSubType='%s' maxresults 1";*//*
 
   public void createMainItem()
   {
@@ -71,4 +71,4 @@ public class BundleController {
 
   }
 
-}
+}*/

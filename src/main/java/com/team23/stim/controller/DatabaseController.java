@@ -1,4 +1,4 @@
-package com.team23.stim.controller;
+/*package com.team23.stim.controller;
 import com.team23.stim.classes.*;
 
 import java.sql.Connection;
@@ -10,14 +10,12 @@ public class DatabaseController {
   Connection c = null;
   Statement stmt = null;
 
-  try {
-    Class.forName("org.postgresql.Driver");
-    c = DriverManager
-      .getConnection("jdbc:postgresql://localhost:5432/stimdb",
-      "stim", "stim");
-    c.setAutoCommit(false);
-    System.out.println("Opened database successfully");
-  }
+  DatabaseController.forName("org.postgresql.Driver");
+  c = DriverManager
+    .getConnection("jdbc:postgresql://localhost:5432/stimdb",
+    "stim", "stim");
+  c.setAutoCommit(false);
+  System.out.println("Opened database successfully");
        /*
        stmt = c.createStatement();
        String sql = "INSERT INTO COMPANY (ID,NAME,AGE,ADDRESS,SALARY) "
@@ -38,10 +36,9 @@ public class DatabaseController {
 
        stmt.close();
        c.commit();
-       c.close();*/
+       c.close();*//*
   catch (Exception e) {
     System.err.println( e.getClass().getName()+": "+ e.getMessage() );
-    System.exit(0);
   }
 
   public void insertMainItem(MainItem iname)
@@ -78,3 +75,4 @@ public class DatabaseController {
     c.commit();
   }
 }
+*/
