@@ -9,6 +9,8 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 
 import com.team23.stim.client.OAuth2PlatformClientFactory;
+import com.team23.stim.controller.QBOController;
+import com.team23.stim.classes.Session;
 import com.intuit.oauth2.client.OAuth2PlatformClient;
 import com.intuit.oauth2.data.BearerTokenResponse;
 import com.intuit.oauth2.exception.OAuthException;
@@ -50,6 +52,8 @@ public class CallbackController {
 				 
 	            session.setAttribute("access_token", bearerTokenResponse.getAccessToken());
 	            session.setAttribute("refresh_token", bearerTokenResponse.getRefreshToken());
+
+                //QBOController.createSession(session);
 	    
 	            // Update your Data store here with user's AccessToken and RefreshToken along with the realmId
 
