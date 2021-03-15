@@ -35,11 +35,24 @@ public class QBOController {
 	@Autowired
     public QBOServiceHelper helper;
 
+	HttpSession myQBOsession = null;
 	
 	private static final Logger logger = Logger.getLogger(QBOController.class);
 	private static final String failureMsg="Failed";
 	
-	
+	public void createSession(HttpSession session)
+	{
+		myQBOsession = session;
+	}
+
+	@ResponseBody
+	@RequestMapping("/returnSession")
+	public String returnSession(HttpSession session)
+	{
+		String sessionInfo = session.getId() + "\t" + myQBOsession.getId();
+		return sessionInfo;
+	}
+
 	/**
      * Sample QBO API call using OAuth2 tokens
      * 
