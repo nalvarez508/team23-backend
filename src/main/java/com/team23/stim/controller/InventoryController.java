@@ -87,16 +87,17 @@ public class InventoryController {
 
 
 	@ResponseBody
-	@CrossOrigin(origins = "http://localhost:8080")
+	@CrossOrigin(origins = "http://localhost:3000")
 	@RequestMapping("/testEndpoint")
-	public String returnStringToYou(HttpSession session)
+	public String returnStringToYou()
 	{
-		String realmId = (String)session.getAttribute("realmId");
+		/*String realmId = (String)session.getAttribute("realmId");
 		if (StringUtils.isEmpty(realmId)) {
 			return new JSONObject().put("response", "No realm ID.  QBO calls only work if the accounting scope was passed!").toString();
 		}
-		String accessToken = (String)session.getAttribute("access_token");
+		String accessToken = (String)session.getAttribute("access_token");*/
 
+		//return new JSONObject().put("response", "Endpoint call successful!").toString();
 		return createResponse("Endpoint call successful!");
 	}
 
