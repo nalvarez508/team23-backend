@@ -27,6 +27,12 @@
         $("#result").html(data)
       })
     }
+    function testEndpoint() {
+      $("#result").html('Loading...')
+      $.get("/testEndpoint", function(data) {
+        $("#result").html(data)
+      })
+    }
 
   </script>
 </head>
@@ -48,6 +54,12 @@
 
   <div>
     <button onclick="addSubItem()">Create Sample Sub Item</button>
+    <br /><br />
+    <div><code id="result"></code></div>
+  </div>
+
+  <div>
+    <button onclick="testEndpoint()">Test Endpoint Response</button>
     <br /><br />
     <div><code id="result"></code></div>
   </div>
