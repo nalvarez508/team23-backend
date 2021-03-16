@@ -19,6 +19,7 @@ import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.bind.annotation.CrossOrigin;
+import org.springframework.web.bind.annotation.RequestHeader;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -108,6 +109,7 @@ public class InventoryController {
 	 * @return
 	 */
 	@ResponseBody
+	@CrossOrigin("http://localhost:3000")
 	@RequestMapping("/inventory_list")
 	public String getInventoryList(HttpSession session) {
 

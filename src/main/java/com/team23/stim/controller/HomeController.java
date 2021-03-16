@@ -9,6 +9,7 @@ import org.apache.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.servlet.View;
 import org.springframework.web.servlet.view.RedirectView;
 
@@ -48,6 +49,7 @@ public class HomeController {
 	 * Controller mapping for connectToQuickbooks button
 	 * @return
 	 */
+	@CrossOrigin("http://localhost:3000")
 	@RequestMapping("/connectToQuickbooks")
 	public View connectToQuickbooks(HttpSession session) {
 		logger.info("inside connectToQuickbooks ");
