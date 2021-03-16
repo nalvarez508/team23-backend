@@ -142,25 +142,32 @@ public class InventoryController {
 
 			//Creates output for functions.html
 			/*String outputMessage = "";
+			boolean main = true;
 			for (int x=0; x<InventoryListContainer.size(); x++)
 			{
+				main = true;
 				outputMessage += (InventoryListContainer.get(x).getName() + "<br />");
 				outputMessage += ((InventoryListContainer.get(x).getSku() != null) ? ("Sku: " + InventoryListContainer.get(x).getSku() + "<br />") : "");
 				outputMessage += ((InventoryListContainer.get(x).getQtyOnHand() != null) ? ("Qty: " + InventoryListContainer.get(x).getQtyOnHand() + "<br />") : "");
-				//outputMessage += "Category: " + (InventoryListContainer.get(x).getParentRef().getName() + "<br />");
 				outputMessage += "Price: " + (InventoryListContainer.get(x).getUnitPrice() + "<br />");
+				if (InventoryListContainer.get(x).getUnitPrice().compareTo(BigDecimal.ZERO) == 0) {main = false;}
+				outputMessage += "Category: " + (main ? "Main" : "Sub") + "<br />";
 				outputMessage += "<br />";
 			}*/
 
+			boolean main = true;
 			JSONObject iList = new JSONObject();
 			for (int x=0; x<InventoryListContainer.size(); x++)
 			{
+				main = true;
 				JSONObject itemDetail = new JSONObject();
 				itemDetail.put("name", InventoryListContainer.get(x).getName());
 				itemDetail.put("sku", InventoryListContainer.get(x).getSku());
 				//itemDetail.put("type", InventoryListContainer.get(x).getParentRef().getName());
 				itemDetail.put("qty", InventoryListContainer.get(x).getQtyOnHand());
 				itemDetail.put("price", InventoryListContainer.get(x).getUnitPrice());
+				if (InventoryListContainer.get(x).getUnitPrice().compareTo(BigDecimal.ZERO) == 0) {main = false;}
+				itemDetail.put("type", (main ? "Main" : "Sub"));
 				iList.put("Item " + x, itemDetail);
 			}
 
@@ -275,6 +282,10 @@ public class InventoryController {
 		Item item = new Item();
 		item.setType(ItemTypeEnum.INVENTORY);
 		item.setName("Test " + category + " Item " + RandomStringUtils.randomAlphanumeric(5));
+		if (category == "Main")
+		{
+			item.setUnitPrice(new BigDecimal(5));
+		}
 		item.setInvStartDate(new Date());
 		//item.setParentRef(ReferenceType);
 
