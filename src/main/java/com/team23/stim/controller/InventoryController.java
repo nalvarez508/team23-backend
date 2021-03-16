@@ -171,8 +171,9 @@ public class InventoryController {
 				itemDetail.put("price", InventoryListContainer.get(x).getUnitPrice());
 				if (InventoryListContainer.get(x).getUnitPrice().compareTo(BigDecimal.ZERO) == 0) {main = false;}
 				itemDetail.put("type", (main ? "Main" : "Sub"));
-				iList.put("Item " + x, itemDetail);
+				itemDetailArray.put("Item " + x, itemDetail);
 			}
+			iList.put("Inventory", itemDetailArray);
 
 			// Return response back
 			//return createResponse(outputMessage);
