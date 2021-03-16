@@ -7,6 +7,12 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.CrossOrigin;
+import org.springframework.web.bind.annotation.ResponseBody;
+
+import org.json.JSONObject;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.core.JsonProcessingException;
 
 import com.team23.stim.client.OAuth2PlatformClientFactory;
 import com.team23.stim.controller.QBOController;
@@ -22,6 +28,24 @@ public class CallbackController {
 	OAuth2PlatformClientFactory factory;
 
     private static final Logger logger = Logger.getLogger(CallbackController.class);
+
+    public String myRealmId = null;
+    public String myAccessToken = null;
+    public String myRefreshToken = null;
+
+    @RequestMapping("/getHeaders")
+    @CrossOrigin("http://localhost:3000")
+    @ResponseBody
+    public String returnSessionInfo()
+    {
+        JSONObject json = new JSONObject();
+        json.put("access_token", myAccessToken);
+        json.put("refresh_token", myRefreshToken);
+        json.put("realm_id", myRealmId);
+
+        //System.out.print(json.toString());
+        return json.toString();
+    }
     
     /**
      *  This is the redirect handler you configure in your app on developer.intuit.com
@@ -52,6 +76,10 @@ public class CallbackController {
 				 
 	            session.setAttribute("access_token", bearerTokenResponse.getAccessToken());
 	            session.setAttribute("refresh_token", bearerTokenResponse.getRefreshToken());
+                
+                myRealmId = realmId;
+                myAccessToken = bearerTokenResponse.getAccessToken();
+                myRefreshToken = bearerTokenResponse.getRefreshToken();
 
                 //QBOController.createSession(session);
 	    
