@@ -162,6 +162,7 @@ public class InventoryController {
 			{
 				main = true;
 				JSONObject itemDetail = new JSONObject();
+				JSONArray itemDetailArray = new JSONArray();
 				itemDetail.put("name", InventoryListContainer.get(x).getName());
 				itemDetail.put("sku", InventoryListContainer.get(x).getSku());
 				//itemDetail.put("type", InventoryListContainer.get(x).getParentRef().getName());
@@ -169,7 +170,8 @@ public class InventoryController {
 				itemDetail.put("price", InventoryListContainer.get(x).getUnitPrice());
 				if (InventoryListContainer.get(x).getUnitPrice().compareTo(BigDecimal.ZERO) == 0) {main = false;}
 				itemDetail.put("type", (main ? "Main" : "Sub"));
-				iList.put("Item " + x, itemDetail);
+				itemDetailArray.put(itemDetail);
+				iList.put("Item " + x, itemDetailArray);
 			}
 
 			// Return response back
