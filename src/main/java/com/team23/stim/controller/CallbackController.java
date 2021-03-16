@@ -80,6 +80,8 @@ public class CallbackController {
                 myRealmId = realmId;
                 myAccessToken = bearerTokenResponse.getAccessToken();
                 myRefreshToken = bearerTokenResponse.getRefreshToken();
+                System.out.println(myAccessToken);
+                System.out.println(myRealmId);
 
                 //QBOController.createSession(session);
 	    
