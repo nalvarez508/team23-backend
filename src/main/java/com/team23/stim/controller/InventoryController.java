@@ -20,6 +20,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.RequestHeader;
+import org.springframework.web.bind.annotation.RequestParam;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -192,14 +193,15 @@ public class InventoryController {
 	 */
 	
 	@ResponseBody
+	@CrossOrigin("http://localhost:3000")
 	@RequestMapping("/createMainItem")
-	public String addMainItem(HttpSession session) {
+	public void addMainItem(@RequestHeader("access_token") String accessToken, @RequestHeader("realm_id") String realmId, @RequestParam("name") String name, @RequestParam("sku") int sku, @RequestParam("price") float price) {
 
-		String realmId = (String)session.getAttribute("realmId");
+		//String realmId = (String)session.getAttribute("realmId");
 		if (StringUtils.isEmpty(realmId)) {
 			return new JSONObject().put("response", "No realm ID.  QBO calls only work if the accounting scope was passed!").toString();
 		}
-		String accessToken = (String)session.getAttribute("access_token");
+		//String accessToken = (String)session.getAttribute("access_token");
 
 		try {
 
@@ -211,16 +213,16 @@ public class InventoryController {
 			Item savedItem = service.add(item);
 
 			//Creates output for functions.html
-			String outputMessage = "";
+			/*String outputMessage = "";
 			outputMessage += (savedItem.getName() + "<br />");
 			outputMessage += ((savedItem.getSku() != null) ? ("Sku: " + savedItem.getSku() + "<br />") : "");
 			outputMessage += ((savedItem.getQtyOnHand() != null) ? ("Qty: " + savedItem.getQtyOnHand() + "<br />") : "");
 			//outputMessage += "Category: " + (savedItem.getParentRef().getName()) + "<br />";
 			outputMessage += "Price: " + (savedItem.getUnitPrice() + "<br />");
-			outputMessage += "<br />";
+			outputMessage += "<br />";*/
 
 			// Return response back
-			return createResponse(outputMessage);
+			//return createResponse(outputMessage);
 
 		} catch (InvalidTokenException e) {
 			return new JSONObject().put("response", "InvalidToken - Refresh token and try again").toString();
@@ -278,19 +280,24 @@ public class InventoryController {
 	 * @return
 	 * @throws FMSException
 	 */
-	private Item getItemWithAllFields(DataService service, String category) throws FMSException {
+	private Item getItemWithAllFields(DataService service, String category, String name, int sku, float price) throws FMSException {
 		Item item = new Item();
 		item.setType(ItemTypeEnum.INVENTORY);
-		item.setName("Test " + category + " Item " + RandomStringUtils.randomAlphanumeric(5));
+		//item.setName("Test " + category + " Item " + RandomStringUtils.randomAlphanumeric(5));
+		item.setName(name);
 		if (category == "Main")
 		{
-			item.setUnitPrice(new BigDecimal(5));
+			item.setUnitPrice(new BigDecimal(price));
+			item.setQtyOnHand(BigDecimal.valueOf(450));
+		}
+		if (category == "Sub")
+		{
+			//item.setQtyOnHand(BigDecimal.valueOf(qty))
 		}
 		item.setInvStartDate(new Date());
 		//item.setParentRef(ReferenceType);
 
 		// Start with 10 items
-		item.setQtyOnHand(BigDecimal.valueOf(450));
 		item.setTrackQtyOnHand(true);
 
 		Account incomeBankAccount = getIncomeBankAccount(service);
