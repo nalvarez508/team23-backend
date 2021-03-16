@@ -113,13 +113,13 @@ public class InventoryController {
 	@ResponseBody
 	@CrossOrigin("http://localhost:3000")
 	@RequestMapping("/inventory_list")
-	public String getInventoryList(/*@RequestHeader("access_token") String accessToken, @RequestHeader("realm_id") String realmId*/HttpSession session) {
+	public String getInventoryList(@RequestHeader("access_token") String accessToken, @RequestHeader("realm_id") String realmId) {
 
-		String realmId = (String)session.getAttribute("realmId");
+		//String realmId = (String)session.getAttribute("realmId");
 		if (StringUtils.isEmpty(realmId)) {
 			return new JSONObject().put("response", "No realm ID.  QBO calls only work if the accounting scope was passed!").toString();
 		}
-		String accessToken = (String)session.getAttribute("access_token");
+		//String accessToken = (String)session.getAttribute("access_token");
 
 		try {
 
