@@ -195,7 +195,7 @@ public class InventoryController {
 	@ResponseBody
 	@CrossOrigin("http://localhost:3000")
 	@RequestMapping("/createMainItem")
-	public void addMainItem(@RequestHeader("access_token") String accessToken, @RequestHeader("realm_id") String realmId, @RequestParam("name") String name, @RequestParam("sku") int sku, @RequestParam("price") float price) {
+	public void addMainItem(@RequestHeader("access_token") String accessToken, @RequestHeader("realm_id") String realmId, @RequestParam("name") String name, @RequestParam("sku") String sku, @RequestParam("price") float price) {
 
 		//String realmId = (String)session.getAttribute("realmId");
 		if (StringUtils.isEmpty(realmId)) {
@@ -209,7 +209,7 @@ public class InventoryController {
 			DataService service = helper.getDataService(realmId, accessToken);
 
 			// Add main item - with initial Quantity on Hand of 450
-			Item item = getItemWithAllFields(service, "Main");
+			Item item = getItemWithAllFields(service, "Main", name, sku, price, null);
 			Item savedItem = service.add(item);
 
 			//Creates output for functions.html
@@ -235,13 +235,13 @@ public class InventoryController {
 
 	@ResponseBody
 	@RequestMapping("/createSubItem")
-	public String addSubItem(HttpSession session) {
+	public void addSubItem(@RequestHeader("access_token") String accessToken, @RequestHeader("realm_id") String realmId, @RequestParam("name") String name, @RequestParam("sku") String sku, @RequestParam("qty") int qty, @RequestParam("muq") int muq) {
 
-		String realmId = (String)session.getAttribute("realmId");
+		//String realmId = (String)session.getAttribute("realmId");
 		if (StringUtils.isEmpty(realmId)) {
 			return new JSONObject().put("response", "No realm ID.  QBO calls only work if the accounting scope was passed!").toString();
 		}
-		String accessToken = (String)session.getAttribute("access_token");
+		//String accessToken = (String)session.getAttribute("access_token");
 
 		try {
 
@@ -249,11 +249,11 @@ public class InventoryController {
 			DataService service = helper.getDataService(realmId, accessToken);
 
 			// Add main item - with initial Quantity on Hand of 450
-			Item item = getItemWithAllFields(service, "Sub");
+			Item item = getItemWithAllFields(service, "Sub", name, sku, null, qty);
 			Item savedItem = service.add(item);
 
 			//Creates output for functions.html
-			String outputMessage = "";
+			/*String outputMessage = "";
 			outputMessage += (savedItem.getName() + "<br />");
 			outputMessage += ((savedItem.getSku() != null) ? ("Sku: " + savedItem.getSku() + "<br />") : "");
 			outputMessage += ((savedItem.getQtyOnHand() != null) ? ("Qty: " + savedItem.getQtyOnHand() + "<br />") : "");
@@ -262,7 +262,7 @@ public class InventoryController {
 			outputMessage += "<br />";
 
 			// Return response back
-			return createResponse(outputMessage);
+			return createResponse(outputMessage);*/
 
 		} catch (InvalidTokenException e) {
 			return new JSONObject().put("response", "InvalidToken - Refresh token and try again").toString();
@@ -280,19 +280,19 @@ public class InventoryController {
 	 * @return
 	 * @throws FMSException
 	 */
-	private Item getItemWithAllFields(DataService service, String category, String name, int sku, float price) throws FMSException {
+	private Item getItemWithAllFields(DataService service, String category, String name, String sku, float price, int qty) throws FMSException {
 		Item item = new Item();
 		item.setType(ItemTypeEnum.INVENTORY);
 		//item.setName("Test " + category + " Item " + RandomStringUtils.randomAlphanumeric(5));
 		item.setName(name);
+		item.setSku(sku);
 		if (category == "Main")
 		{
 			item.setUnitPrice(new BigDecimal(price));
-			item.setQtyOnHand(BigDecimal.valueOf(450));
 		}
 		if (category == "Sub")
 		{
-			//item.setQtyOnHand(BigDecimal.valueOf(qty))
+			item.setQtyOnHand(BigDecimal.valueOf(qty));
 		}
 		item.setInvStartDate(new Date());
 		//item.setParentRef(ReferenceType);
