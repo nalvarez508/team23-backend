@@ -94,13 +94,6 @@ public class InventoryController {
 	@RequestMapping("/testEndpoint")
 	public String returnStringToYou()
 	{
-		/*String realmId = (String)session.getAttribute("realmId");
-		if (StringUtils.isEmpty(realmId)) {
-			return new JSONObject().put("response", "No realm ID.  QBO calls only work if the accounting scope was passed!").toString();
-		}
-		String accessToken = (String)session.getAttribute("access_token");*/
-
-		//return new JSONObject().put("response", "Endpoint call successful!").toString();
 		return createResponse("Endpoint call successful!");
 	}
 
@@ -142,35 +135,16 @@ public class InventoryController {
 				}
 			}
 
-			//Creates output for functions.html
-			/*String outputMessage = "";
-			boolean main = true;
-			for (int x=0; x<InventoryListContainer.size(); x++)
-			{
-				main = true;
-				outputMessage += (InventoryListContainer.get(x).getName() + "<br />");
-				outputMessage += ((InventoryListContainer.get(x).getSku() != null) ? ("Sku: " + InventoryListContainer.get(x).getSku() + "<br />") : "");
-				outputMessage += ((InventoryListContainer.get(x).getQtyOnHand() != null) ? ("Qty: " + InventoryListContainer.get(x).getQtyOnHand() + "<br />") : "");
-				outputMessage += "Price: " + (InventoryListContainer.get(x).getUnitPrice() + "<br />");
-				if (InventoryListContainer.get(x).getUnitPrice().compareTo(BigDecimal.ZERO) == 0) {main = false;}
-				outputMessage += "Category: " + (main ? "Main" : "Sub") + "<br />";
-				outputMessage += "<br />";
-			}*/
-
-			boolean main = true;
 			JSONObject iList = new JSONObject();
 			JSONArray itemDetailArray = new JSONArray();
 			for (int x=0; x<InventoryListContainer.size(); x++)
 			{
-				main = true;
 				JSONObject itemDetail = new JSONObject();
 				itemDetail.put("name", InventoryListContainer.get(x).getName());
 				itemDetail.put("sku", InventoryListContainer.get(x).getSku());
 				//itemDetail.put("type", InventoryListContainer.get(x).getParentRef().getName());
 				itemDetail.put("qty", InventoryListContainer.get(x).getQtyOnHand());
 				itemDetail.put("price", InventoryListContainer.get(x).getUnitPrice());
-				if (InventoryListContainer.get(x).getUnitPrice().compareTo(BigDecimal.ZERO) == 0) {main = false;}
-				itemDetail.put("type", (main ? "Main" : "Sub"));
 				itemDetailArray.put(itemDetail);
 			}
 			//iList.put(itemDetailArray);
@@ -198,7 +172,7 @@ public class InventoryController {
 	@ResponseBody
 	@CrossOrigin("http://localhost:3000")
 	@RequestMapping("/createMainItem")
-	public String addMainItem(@RequestHeader("access_token") String accessToken, @RequestHeader("realm_id") String realmId, @RequestParam("name") String name, @RequestParam("sku") String sku, @RequestParam("price") float price) {
+	public String addMainItem(@RequestHeader("access_token") String accessToken, @RequestHeader("realm_id") String realmId, @RequestParam("name") String name, @RequestParam("sku") String sku, @RequestParam("price") float price, @RequestParam("qty") int qty) {
 
 		//String realmId = (String)session.getAttribute("realmId");
 		if (StringUtils.isEmpty(realmId)) {
@@ -211,21 +185,10 @@ public class InventoryController {
 			// Get DataService
 			DataService service = helper.getDataService(realmId, accessToken);
 
-			// Add main item - with initial Quantity on Hand of 450
-			Item item = getItemWithAllFields(service, "Main", name, sku, price, 0);
+			// Add item
+			Item item = getItemWithAllFields(service, name, sku, price, qty);
 			Item savedItem = service.add(item);
 
-			//Creates output for functions.html
-			/*String outputMessage = "";
-			outputMessage += (savedItem.getName() + "<br />");
-			outputMessage += ((savedItem.getSku() != null) ? ("Sku: " + savedItem.getSku() + "<br />") : "");
-			outputMessage += ((savedItem.getQtyOnHand() != null) ? ("Qty: " + savedItem.getQtyOnHand() + "<br />") : "");
-			//outputMessage += "Category: " + (savedItem.getParentRef().getName()) + "<br />";
-			outputMessage += "Price: " + (savedItem.getUnitPrice() + "<br />");
-			outputMessage += "<br />";*/
-
-			// Return response back
-			//return createResponse(outputMessage);
 			return createResponse("Success");
 
 		} catch (InvalidTokenException e) {
@@ -247,6 +210,12 @@ public class InventoryController {
 			return new JSONObject().put("response", "No realm ID.  QBO calls only work if the accounting scope was passed!").toString();
 		}
 		//String accessToken = (String)session.getAttribute("access_token");
+		System.out.println(name);
+		System.out.println(sku);
+		System.out.println(qty);
+		System.out.println(muq);
+		for (int z=0; z<20; z++) {System.out.println();}
+		
 
 		try {
 
@@ -286,21 +255,14 @@ public class InventoryController {
 	 * @return
 	 * @throws FMSException
 	 */
-	private Item getItemWithAllFields(DataService service, String category, String name, String sku, float price, int qty) throws FMSException {
+	private Item getItemWithAllFields(DataService service, String name, String sku, float price, int qty) throws FMSException {
 		Item item = new Item();
 		item.setType(ItemTypeEnum.INVENTORY);
 		//item.setName("Test " + category + " Item " + RandomStringUtils.randomAlphanumeric(5));
 		item.setName(name);
 		item.setSku(sku);
-		if (category == "Main")
-		{
-			item.setUnitPrice(new BigDecimal(price));
-			item.setQtyOnHand(new BigDecimal(0));
-		}
-		if (category == "Sub")
-		{
-			item.setQtyOnHand(new BigDecimal(qty));
-		}
+		item.setUnitPrice(new BigDecimal(price));
+		item.setQtyOnHand(new BigDecimal(qty));
 		item.setInvStartDate(new Date());
 		//item.setParentRef(ReferenceType);
 
