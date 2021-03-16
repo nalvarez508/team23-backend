@@ -141,7 +141,7 @@ public class InventoryController {
 			}
 
 			//Creates output for functions.html
-			String outputMessage = "";
+			/*String outputMessage = "";
 			for (int x=0; x<InventoryListContainer.size(); x++)
 			{
 				outputMessage += (InventoryListContainer.get(x).getName() + "<br />");
@@ -150,10 +150,23 @@ public class InventoryController {
 				//outputMessage += "Category: " + (InventoryListContainer.get(x).getParentRef().getName() + "<br />");
 				outputMessage += "Price: " + (InventoryListContainer.get(x).getUnitPrice() + "<br />");
 				outputMessage += "<br />";
+			}*/
+
+			JSONObject iList = new JSONObject();
+			for (int x=0; x<InventoryListContainer.size(); x++)
+			{
+				JSONObject itemDetail = new JSONObject();
+				itemDetail.put("name", InventoryListContainer.get(x).getName());
+				itemDetail.put("sku", InventoryListContainer.get(x).getSku());
+				//itemDetail.put("type", InventoryListContainer.get(x).getParentRef().getName());
+				itemDetail.put("qty", InventoryListContainer.get(x).getQtyOnHand());
+				itemDetail.put("price", InventoryListContainer.get(x).getUnitPrice());
+				iList.put("Item " + x, itemDetail);
 			}
 
 			// Return response back
-			return createResponse(outputMessage);
+			//return createResponse(outputMessage);
+			return iList.toString();
 
 		} catch (InvalidTokenException e) {
 			return new JSONObject().put("response", "InvalidToken - Refresh token and try again").toString();
