@@ -2,6 +2,7 @@ package com.team23.stim.controller;
 import com.team23.stim.classes.*;
 
 import java.math.BigDecimal;
+import java.math.RoundingMode;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
@@ -172,7 +173,7 @@ public class InventoryController {
 	@ResponseBody
 	@CrossOrigin("http://localhost:3000")
 	@RequestMapping("/createMainItem")
-	public String addMainItem(@RequestHeader("access_token") String accessToken, @RequestHeader("realm_id") String realmId, @RequestParam("name") String name, @RequestParam("sku") String sku, @RequestParam("price") float price, @RequestParam("qty") int qty) {
+	public String addMainItem(@RequestHeader("access_token") String accessToken, @RequestHeader("realm_id") String realmId, @RequestParam("name") String name, @RequestParam("sku") String sku, @RequestParam("price") double price, @RequestParam("qty") int qty) {
 
 		//String realmId = (String)session.getAttribute("realmId");
 		if (StringUtils.isEmpty(realmId)) {
@@ -262,7 +263,7 @@ public class InventoryController {
 		//item.setName("Test " + category + " Item " + RandomStringUtils.randomAlphanumeric(5));
 		item.setName(name);
 		item.setSku(sku);
-		item.setUnitPrice(new BigDecimal(price));
+		item.setUnitPrice(new BigDecimal(price).setScale(2, RoundingMode.HALF_UP));
 		item.setQtyOnHand(new BigDecimal(qty));
 		item.setInvStartDate(new Date());
 		//item.setParentRef(ReferenceType);
