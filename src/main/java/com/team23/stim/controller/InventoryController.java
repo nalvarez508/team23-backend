@@ -200,6 +200,7 @@ public class InventoryController {
 		}
 	}
 
+	/*
 	@ResponseBody
 	@CrossOrigin("http://localhost:3000")
 	@RequestMapping("/createSubItem")
@@ -236,7 +237,7 @@ public class InventoryController {
 			outputMessage += "<br />";
 
 			// Return response back
-			return createResponse(outputMessage);*/
+			return createResponse(outputMessage);*//*
 			return createResponse("Success");
 
 		} catch (InvalidTokenException e) {
@@ -246,7 +247,7 @@ public class InventoryController {
 			list.forEach(error -> logger.error("Error while calling the API :: " + error.getMessage()));
 			return new JSONObject().put("response","Failed").toString();
 		}
-	}
+	}*/
 
 
 	/**
