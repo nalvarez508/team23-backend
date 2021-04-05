@@ -29,7 +29,7 @@
     }
     function testEndpoint() {
       $("#result").html('Loading...')
-      $.get("/testEndpoint", function(data) {
+      $.get("/getAllInvoices", function(data) {
         $("#result").html(data)
       })
     }
