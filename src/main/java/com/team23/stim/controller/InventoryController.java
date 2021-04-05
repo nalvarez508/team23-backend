@@ -1,5 +1,4 @@
 package com.team23.stim.controller;
-import com.team23.stim.classes.*;
 
 import java.math.BigDecimal;
 import java.math.RoundingMode;
@@ -201,45 +200,68 @@ public class InventoryController {
 		}
 	}
 
-	/*
 	@ResponseBody
-	@CrossOrigin("http://localhost:3000")
-	@RequestMapping("/createSubItem")
-	public String addSubItem(@RequestHeader("access_token") String accessToken, @RequestHeader("realm_id") String realmId, @RequestParam("name") String name, @RequestParam("sku") String sku, @RequestParam("qty") int qty, @RequestParam("muq") int muq) {
-
-		//String realmId = (String)session.getAttribute("realmId");
+	@RequestMapping("/getAllInvoices")
+	public String getAllInvoices(HttpSession session)
+	{
+		String realmId = (String)session.getAttribute("realmId");
 		if (StringUtils.isEmpty(realmId)) {
 			return new JSONObject().put("response", "No realm ID.  QBO calls only work if the accounting scope was passed!").toString();
 		}
-		//String accessToken = (String)session.getAttribute("access_token");
-		System.out.println(name);
-		System.out.println(sku);
-		System.out.println(qty);
-		System.out.println(muq);
-		for (int z=0; z<20; z++) {System.out.println();}
-		
+		String accessToken = (String)session.getAttribute("access_token");
 
 		try {
 
 			// Get DataService
 			DataService service = helper.getDataService(realmId, accessToken);
+			
+			String ITEM_QUERY = "select * from Invoice maxresults 10";
+			QueryResult InvoiceList = service.executeQuery(ITEM_QUERY); //Creates QueryResult object with inventory
+			List<? extends IEntity> entities = InvoiceList.getEntities(); //Creates list of entities
 
-			// Add main item - with initial Quantity on Hand of 450
-			Item item = getItemWithAllFields(service, "Sub", name, sku, 0, qty);
-			Item savedItem = service.add(item);
+			//Stores entities in vector
+			Vector<Invoice> InvoiceListContainer = new Vector<Invoice>(entities.size());
 
-			//Creates output for functions.html
-			/*String outputMessage = "";
-			outputMessage += (savedItem.getName() + "<br />");
-			outputMessage += ((savedItem.getSku() != null) ? ("Sku: " + savedItem.getSku() + "<br />") : "");
-			outputMessage += ((savedItem.getQtyOnHand() != null) ? ("Qty: " + savedItem.getQtyOnHand() + "<br />") : "");
-			//outputMessage += "Category: " + (savedItem.getParentRef().getName()) + "<br />";
-			outputMessage += "Price: " + (savedItem.getUnitPrice() + "<br />");
-			outputMessage += "<br />";
+			//Populates vector with invoices
+			for (int i=0; i<entities.size(); i++)
+			{
+				Invoice tempInvoice = ((Invoice)entities.get(i));
+				InvoiceListContainer.add(tempInvoice);
+			}
+			//System.out.println("\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n");
+
+			JSONObject iList = new JSONObject();
+			JSONArray invoiceDetailArray = new JSONArray();
+			for (int x=0; x<InvoiceListContainer.size(); x++)
+			{
+				//Iterating through each invoice's Line items and saving values
+				JSONObject invoiceDetail = new JSONObject();
+				JSONArray lineDetailArray = new JSONArray();
+				List<Line> tempLineList = InvoiceListContainer.get(x).getLine();
+				for (int y=0; y<(tempLineList.size()-1); y++)
+				{
+					JSONObject lineDetail = new JSONObject();
+					lineDetail.put("itemName", tempLineList.get(y).getSalesItemLineDetail().getItemRef().getName());
+					lineDetail.put("qty", tempLineList.get(y).getSalesItemLineDetail().getQty());
+					lineDetail.put("unitPrice", tempLineList.get(y).getSalesItemLineDetail().getUnitPrice());
+
+
+					lineDetail.put("totalPurchasePrice", tempLineList.get(y).getAmount());
+					lineDetailArray.put(lineDetail);
+					//System.out.println(lineDetailArray.toString());
+				}
+				//Adding Line array to JSONObject and getting transaction date
+				String invoiceInfo = "Invoice ID " + InvoiceListContainer.get(x).getId();
+				invoiceDetail.put(invoiceInfo, lineDetailArray);
+				invoiceDetail.put("txnDate", InvoiceListContainer.get(x).getTxnDate());
+				invoiceDetailArray.put(invoiceDetail);
+				//System.out.println(invoiceDetailArray.toString());
+			}
+			//iList.put(itemDetailArray);
 
 			// Return response back
-			return createResponse(outputMessage);*//*
-			return createResponse("Success");
+			//return createResponse(outputMessage);
+			return invoiceDetailArray.toString();
 
 		} catch (InvalidTokenException e) {
 			return new JSONObject().put("response", "InvalidToken - Refresh token and try again").toString();
@@ -248,8 +270,7 @@ public class InventoryController {
 			list.forEach(error -> logger.error("Error while calling the API :: " + error.getMessage()));
 			return new JSONObject().put("response","Failed").toString();
 		}
-	}*/
-
+	}
 
 	/**
 	 * Prepare Item request
