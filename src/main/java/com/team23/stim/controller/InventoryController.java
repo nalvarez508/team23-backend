@@ -48,33 +48,6 @@ import com.intuit.ipp.exception.InvalidTokenException;
 import com.intuit.ipp.services.DataService;
 import com.intuit.ipp.services.QueryResult;
 
-/*class InventoryList{
-	String name;
-	BigDecimal amount;
-	String sku;
-	BigDecimal price;
-	ItemGroupDetail category;
-	InventoryList(String name, BigDecimal amount, String sku, BigDecimal price, ItemGroupDetail category){
-		this.name = name;
-		this.amount = amount;
-		this.sku = sku;
-		this.price = price;
-		this.category = category;
-	}
-	void printInventoryList()
-	{
-		System.out.println(this.name);
-		System.out.println(this.amount);
-		System.out.println(this.sku);
-		System.out.println(this.price);
-		System.out.println(this.category);
-	}
-	String getILName()
-	{
-		return this.name;
-	}
-}*/
-
 @Controller
 public class InventoryController {
 
@@ -147,7 +120,6 @@ public class InventoryController {
 				itemDetail.put("price", InventoryListContainer.get(x).getUnitPrice());
 				itemDetailArray.put(itemDetail);
 			}
-			//iList.put(itemDetailArray);
 
 			// Return response back
 			//return createResponse(outputMessage);
@@ -163,7 +135,6 @@ public class InventoryController {
 	}
 
 	/**
-	 * Sample QBO API call using OAuth2 tokens
 	 *
 	 * @param session
 	 * @return
@@ -289,7 +260,6 @@ public class InventoryController {
 		item.setInvStartDate(new Date());
 		//item.setParentRef(ReferenceType);
 
-		// Start with 10 items
 		item.setTrackQtyOnHand(true);
 
 		Account incomeBankAccount = getIncomeBankAccount(service);
@@ -320,7 +290,7 @@ public class InventoryController {
 		return customer;
 	}
 
-	/**
+	/**OUT
 	 * Prepare Invoice Request
 	 * @param customer
 	 * @param item
