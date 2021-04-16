@@ -19,6 +19,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.ResponseBody;
+
 import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.RequestHeader;
 import org.springframework.web.bind.annotation.RequestParam;
@@ -290,6 +291,46 @@ public class InventoryController {
 			// Return response back
 			//return createResponse(outputMessage);
 			return itemDetailArray.toString();
+
+		} catch (InvalidTokenException e) {
+			return new JSONObject().put("response", "InvalidToken - Refresh token and try again").toString();
+		} catch (FMSException e) {
+			List<Error> list = e.getErrorList();
+			list.forEach(error -> logger.error("Error while calling the API :: " + error.getMessage()));
+			return new JSONObject().put("response","Failed").toString();
+		}
+	}
+
+	@ResponseBody
+	@CrossOrigin("http://localhost:3000")
+	@RequestMapping("/updateItem")
+	public String modifyMainItem(@RequestHeader("access_token") String accessToken, @RequestHeader("realm_id") String realmId, @RequestParam("name") String name, @RequestParam("sku") String sku, @RequestParam("price") float price, @RequestParam("qty") int qty)
+	{
+		//String realmId = (String)session.getAttribute("realmId");
+		if (StringUtils.isEmpty(realmId)) {
+			return new JSONObject().put("response", "No realm ID.  QBO calls only work if the accounting scope was passed!").toString();
+		}
+		//String accessToken = (String)session.getAttribute("access_token");
+
+		try {
+
+			// Get DataService
+			DataService service = helper.getDataService(realmId, accessToken);
+
+			String ITEM_QUERY = "select * from Item where name = " + name + " and sku = " + sku + " maxresults 1";
+			QueryResult ItemList = service.executeQuery(ITEM_QUERY); //Creates QueryResult object with inventory
+			List<? extends IEntity> entities = ItemList.getEntities(); //Creates list of entities
+
+			//Stores entities in vector
+			//Vector<Item> InventoryListContainer = new Vector<Item>(entities.size());
+			Item itemToModify = ((Item).entities.get(0));
+			itemToModify.setUnitPrice(price);
+			itemToModify.setQtyOnHand(qty);
+			Item savedItem = service.update(itemToModify);
+
+			// Return response back
+			//return createResponse(outputMessage);
+			return createResponse("Success!");
 
 		} catch (InvalidTokenException e) {
 			return new JSONObject().put("response", "InvalidToken - Refresh token and try again").toString();
