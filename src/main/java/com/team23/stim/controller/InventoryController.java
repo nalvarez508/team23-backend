@@ -243,6 +243,63 @@ public class InventoryController {
 		}
 	}
 
+	@ResponseBody
+	@CrossOrigin("http://localhost:3000")
+	@RequestMapping("/alertCheck")
+	public String findItemsWithLowInventory(@RequestHeader("access_token") String accessToken, @RequestHeader("realm_id") String realmId, @RequestParam("threshold") int threshold)
+	{
+	
+		//String realmId = (String)session.getAttribute("realmId");
+		if (StringUtils.isEmpty(realmId)) {
+			return new JSONObject().put("response", "No realm ID.  QBO calls only work if the accounting scope was passed!").toString();
+		}
+		//String accessToken = (String)session.getAttribute("access_token");
+
+		try {
+
+			// Get DataService
+			DataService service = helper.getDataService(realmId, accessToken);
+
+			String ITEM_QUERY = "select * from Item where qtyOnHand <= " + threshold + " maxresults 99";
+			QueryResult ItemList = service.executeQuery(ITEM_QUERY); //Creates QueryResult object with inventory
+			List<? extends IEntity> entities = ItemList.getEntities(); //Creates list of entities
+
+			//Stores entities in vector
+			Vector<Item> InventoryListContainer = new Vector<Item>(entities.size());
+
+			//Populates vector with items
+			for (int i=0; i<entities.size(); i++)
+			{
+				Item tempItem = ((Item)entities.get(i));
+				if (tempItem.getType() != ItemTypeEnum.CATEGORY){ //Items of type CATEGORY are skipped
+					InventoryListContainer.add(tempItem);
+				}
+			}
+
+			JSONObject iList = new JSONObject();
+			JSONArray itemDetailArray = new JSONArray();
+			for (int x=0; x<InventoryListContainer.size(); x++)
+			{
+				JSONObject itemDetail = new JSONObject();
+				itemDetail.put("name", InventoryListContainer.get(x).getName());
+				itemDetail.put("sku", InventoryListContainer.get(x).getSku());
+				itemDetail.put("qty", InventoryListContainer.get(x).getQtyOnHand());
+				itemDetailArray.put(itemDetail);
+			}
+
+			// Return response back
+			//return createResponse(outputMessage);
+			return itemDetailArray.toString();
+
+		} catch (InvalidTokenException e) {
+			return new JSONObject().put("response", "InvalidToken - Refresh token and try again").toString();
+		} catch (FMSException e) {
+			List<Error> list = e.getErrorList();
+			list.forEach(error -> logger.error("Error while calling the API :: " + error.getMessage()));
+			return new JSONObject().put("response","Failed").toString();
+		}
+	}
+
 	/**
 	 * Prepare Item request
 	 * @param service
