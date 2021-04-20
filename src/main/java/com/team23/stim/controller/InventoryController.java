@@ -62,6 +62,8 @@ public class InventoryController {
 	
 	private static final String ACCOUNT_QUERY = "select * from Account where AccountType='%s' and AccountSubType='%s' maxresults 1";
 
+	private int threshold = 50;
+
 
 	@ResponseBody
 	@CrossOrigin(origins = "http://localhost:3000")
@@ -247,7 +249,7 @@ public class InventoryController {
 	@ResponseBody
 	@CrossOrigin("http://localhost:3000")
 	@RequestMapping("/alertCheck")
-	public String findItemsWithLowInventory(@RequestHeader("access_token") String accessToken, @RequestHeader("realm_id") String realmId, @RequestParam("threshold") int threshold)
+	public String findItemsWithLowInventory(@RequestHeader("access_token") String accessToken, @RequestHeader("realm_id") String realmId)
 	{
 	
 		//String realmId = (String)session.getAttribute("realmId");
@@ -339,6 +341,15 @@ public class InventoryController {
 			list.forEach(error -> logger.error("Error while calling the API :: " + error.getMessage()));
 			return new JSONObject().put("response","Failed").toString();
 		}
+	}
+
+	@ResponseBody
+	@CrossOrigin("http://localhost:3000")
+	@RequestMapping("/changeThreshold")
+	public String changeThreshold(@RequestParam("threshold") int t)
+	{
+		threshold = t;
+		return createResponse("Threshold updated.");
 	}
 
 	/**
