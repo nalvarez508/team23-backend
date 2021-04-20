@@ -323,9 +323,9 @@ public class InventoryController {
 
 			//Stores entities in vector
 			//Vector<Item> InventoryListContainer = new Vector<Item>(entities.size());
-			Item itemToModify = ((Item).entities.get(0));
-			itemToModify.setUnitPrice(price);
-			itemToModify.setQtyOnHand(qty);
+			Item itemToModify = (Item)entities.get(0);
+			itemToModify.setUnitPrice(new BigDecimal(price).setScale(2, RoundingMode.HALF_UP));
+			itemToModify.setQtyOnHand(new BigDecimal(qty));
 			Item savedItem = service.update(itemToModify);
 
 			// Return response back
