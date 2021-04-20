@@ -263,19 +263,22 @@ public class InventoryController {
 			// Get DataService
 			DataService service = helper.getDataService(realmId, accessToken);
 
-			String ITEM_QUERY = "select * from Item where qtyOnHand <= " + threshold + " maxresults 99";
+			String ITEM_QUERY = "select * from Item maxresults 99";
 			QueryResult ItemList = service.executeQuery(ITEM_QUERY); //Creates QueryResult object with inventory
 			List<? extends IEntity> entities = ItemList.getEntities(); //Creates list of entities
 
 			//Stores entities in vector
 			Vector<Item> InventoryListContainer = new Vector<Item>(entities.size());
-
 			//Populates vector with items
 			for (int i=0; i<entities.size(); i++)
 			{
 				Item tempItem = ((Item)entities.get(i));
 				if (tempItem.getType() != ItemTypeEnum.CATEGORY){ //Items of type CATEGORY are skipped
-					InventoryListContainer.add(tempItem);
+					if (tempItem.getQtyOnHand() != null){ //The item has a QtyOnHand value
+						if (tempItem.getQtyOnHand().compareTo(new BigDecimal(threshold)) <= 0){
+							InventoryListContainer.add(tempItem);
+						}
+					}
 				}
 			}
 
