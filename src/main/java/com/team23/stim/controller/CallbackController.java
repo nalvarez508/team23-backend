@@ -16,7 +16,6 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 
 import com.team23.stim.client.OAuth2PlatformClientFactory;
 import com.team23.stim.controller.QBOController;
-import com.team23.stim.classes.Session;
 import com.intuit.oauth2.client.OAuth2PlatformClient;
 import com.intuit.oauth2.data.BearerTokenResponse;
 import com.intuit.oauth2.exception.OAuthException;
