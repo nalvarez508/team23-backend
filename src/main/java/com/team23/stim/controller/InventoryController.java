@@ -3,8 +3,10 @@ package com.team23.stim.controller;
 import java.math.BigDecimal;
 import java.math.RoundingMode;
 import java.util.ArrayList;
+import java.util.Calendar;
 import java.util.Date;
 import java.util.List;
+import java.util.TimeZone;
 import java.util.Vector;
 import java.io.*;
 
@@ -195,6 +197,7 @@ public class InventoryController {
 
 			//Stores entities in vector
 			Vector<Invoice> InvoiceListContainer = new Vector<Invoice>(entities.size());
+			float dataPoints[] = new float[12];
 
 			//Populates vector with invoices
 			for (int i=0; i<entities.size(); i++)
@@ -212,6 +215,11 @@ public class InventoryController {
 				JSONObject invoiceDetail = new JSONObject();
 				JSONArray lineDetailArray = new JSONArray();
 				List<Line> tempLineList = InvoiceListContainer.get(x).getLine();
+
+				Calendar cal = Calendar.getInstance(TimeZone.getTimeZone("Los Angeles"));
+				cal.setTime(InvoiceListContainer.get(x).getTxnDate());
+				dataPoints[cal.get(Calendar.MONTH)] = 0;
+
 				for (int y=0; y<(tempLineList.size()-1); y++)
 				{
 					JSONObject lineDetail = new JSONObject();
@@ -221,6 +229,7 @@ public class InventoryController {
 
 
 					lineDetail.put("totalPurchasePrice", tempLineList.get(y).getAmount());
+					dataPoints[cal.get(Calendar.MONTH)] += tempLineList.get(y).getAmount().floatValue();
 					lineDetailArray.put(lineDetail);
 					//System.out.println(lineDetailArray.toString());
 				}
@@ -235,6 +244,13 @@ public class InventoryController {
 
 			// Return response back
 			//return createResponse(outputMessage);
+
+			for (int z=0; z<12; z++)
+			{
+				System.out.println("Month " + z);
+				System.out.println(dataPoints[z]);
+			}
+
 			return invoiceDetailArray.toString();
 
 		} catch (InvalidTokenException e) {
@@ -309,7 +325,7 @@ public class InventoryController {
 	@ResponseBody
 	@CrossOrigin("http://localhost:3000")
 	@RequestMapping("/updateItem")
-	public String modifyMainItem(@RequestHeader("access_token") String accessToken, @RequestHeader("realm_id") String realmId, @RequestParam("name") String name, @RequestParam("sku") String sku, @RequestParam("price") float price, @RequestParam("qty") int qty)
+	public String modifyMainItem(@RequestHeader("access_token") String accessToken, @RequestHeader("realm_id") String realmId, @RequestParam("sku") String sku, @RequestParam("price") float price, @RequestParam("qty") int qty)
 	{
 		//String realmId = (String)session.getAttribute("realmId");
 		if (StringUtils.isEmpty(realmId)) {
@@ -322,7 +338,7 @@ public class InventoryController {
 			// Get DataService
 			DataService service = helper.getDataService(realmId, accessToken);
 
-			String ITEM_QUERY = "select * from Item where name = " + name + " and sku = " + sku + " maxresults 1";
+			String ITEM_QUERY = "select * from Item where sku = " + sku + " maxresults 1";
 			QueryResult ItemList = service.executeQuery(ITEM_QUERY); //Creates QueryResult object with inventory
 			List<? extends IEntity> entities = ItemList.getEntities(); //Creates list of entities
 
