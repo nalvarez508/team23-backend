@@ -180,13 +180,14 @@ public class InventoryController {
 			// Get DataService
 			DataService service = helper.getDataService(realmId, accessToken);
 			
-			String ITEM_QUERY = "select * from Invoice maxresults 1000";
-			QueryResult InvoiceList = service.executeQuery(ITEM_QUERY); //Creates QueryResult object with inventory
+			String INVOICE_QUERY = "select * from Invoice maxresults 1000";
+			QueryResult InvoiceList = service.executeQuery(INVOICE_QUERY); //Creates QueryResult object with inventory
 			List<? extends IEntity> entities = InvoiceList.getEntities(); //Creates list of entities
 
 			//Stores entities in vector
 			Vector<Invoice> InvoiceListContainer = new Vector<Invoice>(entities.size());
 			float dataPoints[] = new float[12];
+			Arrays.fill(dataPoints, 0);
 
 			//Populates vector with invoices
 			for (int i=0; i<entities.size(); i++)
@@ -201,7 +202,7 @@ public class InventoryController {
 				List<Line> tempLineList = InvoiceListContainer.get(x).getLine();
 				Calendar cal = Calendar.getInstance(TimeZone.getTimeZone("Los Angeles"));
 				cal.setTime(InvoiceListContainer.get(x).getTxnDate());
-				dataPoints[cal.get(Calendar.MONTH)] = 0;
+				//dataPoints[cal.get(Calendar.MONTH)] = 0;
 
 				for (int y=0; y<(tempLineList.size()-1); y++)
 				{
@@ -223,8 +224,6 @@ public class InventoryController {
 			for (int z=0; z<12; z++)
 			{
 				JSONObject point = new JSONObject();
-				System.out.println("Month " + z);
-				System.out.println(dataPoints[z]);
 				point.put("month", z);
 				point.put("value", dataPoints[z]);
 				coordinates.put(point);
@@ -257,13 +256,14 @@ public class InventoryController {
 			// Get DataService
 			DataService service = helper.getDataService(realmId, accessToken);
 			
-			String ITEM_QUERY = "select * from Invoice maxresults 1000";
-			QueryResult InvoiceList = service.executeQuery(ITEM_QUERY); //Creates QueryResult object with inventory
+			String INVOICE_QUERY = "select * from Invoice maxresults 1000";
+			QueryResult InvoiceList = service.executeQuery(INVOICE_QUERY); //Creates QueryResult object with inventory
 			List<? extends IEntity> entities = InvoiceList.getEntities(); //Creates list of entities
 
 			//Stores entities in vector
 			Vector<Invoice> InvoiceListContainer = new Vector<Invoice>(entities.size());
 			float dataPoints[] = new float[12];
+			Arrays.fill(dataPoints, 0);
 
 			//Populates vector with invoices
 			for (int i=0; i<entities.size(); i++)
@@ -279,7 +279,7 @@ public class InventoryController {
 
 				Calendar cal = Calendar.getInstance(TimeZone.getTimeZone("Los Angeles"));
 				cal.setTime(InvoiceListContainer.get(x).getTxnDate());
-				dataPoints[cal.get(Calendar.MONTH)] = 0;
+				//dataPoints[cal.get(Calendar.MONTH)] = 0;
 
 				for (int y=0; y<(tempLineList.size()-1); y++)
 				{
@@ -289,12 +289,18 @@ public class InventoryController {
 				}
 			}
 
+			// Add current inventory to item inventory level
+			/*String ITEM_QUERY = "select * from Item where name = '" + name + "' maxresults 1";
+			QueryResult ItemList = service.executeQuery(ITEM_QUERY); //Creates QueryResult object with inventory
+			List<? extends IEntity> entities = ItemList.getEntities(); //Creates list of entities
+			Item metricItem = (Item)entities.get(0);
+			Calendar cal = Calendar.getInstance(TimeZone.getTimeZone("Los Angeles"));
+			dataPoints[cal.get(Calendar.MONTH)] += metricItem.getQtyOnHand();*/
+
 			JSONArray coordinates = new JSONArray();
 			for (int z=0; z<12; z++)
 			{
 				JSONObject point = new JSONObject();
-				System.out.println("Month " + z);
-				System.out.println(dataPoints[z]);
 				point.put("month", z);
 				point.put("value", dataPoints[z]);
 				coordinates.put(point);
