@@ -178,14 +178,15 @@ public class InventoryController {
 	}
 
 	@ResponseBody
+	@CrossOrigin("http://localhost:3000")
 	@RequestMapping("/getAllInvoices")
-	public String getAllInvoices(HttpSession session)
+	public String getAllInvoices(@RequestHeader("access_token") String accessToken, @RequestHeader("realm_id") String realmId)
 	{
-		String realmId = (String)session.getAttribute("realmId");
+		//String realmId = (String)session.getAttribute("realmId");
 		if (StringUtils.isEmpty(realmId)) {
 			return new JSONObject().put("response", "No realm ID.  QBO calls only work if the accounting scope was passed!").toString();
 		}
-		String accessToken = (String)session.getAttribute("access_token");
+		//String accessToken = (String)session.getAttribute("access_token");
 
 		try {
 
@@ -474,7 +475,7 @@ public class InventoryController {
 
 			for (List<String> csv : records)
 			{
-				System.out.println(csv.get(2));
+				System.out.println(csv.get(0));
 				if (!csv.get(0).contains("InvoiceNo"))
 				{
 					Item myNewItem = getItemWithAllFields(service, csv.get(0), csv.get(2), Float.parseFloat(csv.get(4)), Integer.parseInt(csv.get(10)));
