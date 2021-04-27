@@ -92,7 +92,7 @@ public class InventoryController {
 			// Get DataService
 			DataService service = helper.getDataService(realmId, accessToken);
 
-			String ITEM_QUERY = "select * from Item maxresults 9999";
+			String ITEM_QUERY = "select * from Item maxresults 1000";
 			QueryResult ItemList = service.executeQuery(ITEM_QUERY); //Creates QueryResult object with inventory
 			List<? extends IEntity> entities = ItemList.getEntities(); //Creates list of entities
 
@@ -180,7 +180,7 @@ public class InventoryController {
 			// Get DataService
 			DataService service = helper.getDataService(realmId, accessToken);
 			
-			String ITEM_QUERY = "select * from Invoice maxresults 9999";
+			String ITEM_QUERY = "select * from Invoice maxresults 1000";
 			QueryResult InvoiceList = service.executeQuery(ITEM_QUERY); //Creates QueryResult object with inventory
 			List<? extends IEntity> entities = InvoiceList.getEntities(); //Creates list of entities
 
@@ -257,7 +257,7 @@ public class InventoryController {
 			// Get DataService
 			DataService service = helper.getDataService(realmId, accessToken);
 			
-			String ITEM_QUERY = "select * from Invoice maxresults 9999";
+			String ITEM_QUERY = "select * from Invoice maxresults 1000";
 			QueryResult InvoiceList = service.executeQuery(ITEM_QUERY); //Creates QueryResult object with inventory
 			List<? extends IEntity> entities = InvoiceList.getEntities(); //Creates list of entities
 
@@ -328,7 +328,7 @@ public class InventoryController {
 			// Get DataService
 			DataService service = helper.getDataService(realmId, accessToken);
 
-			String ITEM_QUERY = "select * from Item maxresults 9999";
+			String ITEM_QUERY = "select * from Item maxresults 1000";
 			QueryResult ItemList = service.executeQuery(ITEM_QUERY); //Creates QueryResult object with inventory
 			List<? extends IEntity> entities = ItemList.getEntities(); //Creates list of entities
 
@@ -386,7 +386,7 @@ public class InventoryController {
 		try {
 			// Get DataService
 			DataService service = helper.getDataService(realmId, accessToken);
-			String ITEM_QUERY = "select * from Item where sku = '" + sku + "' maxresults 9999";
+			String ITEM_QUERY = "select * from Item where sku = '" + sku + "' maxresults 1000";
 			QueryResult ItemList = service.executeQuery(ITEM_QUERY); //Creates QueryResult object with inventory
 			List<? extends IEntity> entities = ItemList.getEntities(); //Creates list of entities
 			//Stores entities in vector
