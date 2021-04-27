@@ -27,9 +27,16 @@
         $("#result").html(data)
       })
     }
-    function testEndpoint() {
+    function importInventory() {
       $("#result").html('Loading...')
-      $.get("/getAllInvoices", function(data) {
+      $.get("/importInventory", function(data) {
+        $("#result").html(data)
+      })
+    }
+
+    function importInvoices() {
+      $("#result").html('Loading...')
+      $.get("/importInvoices", function(data) {
         $("#result").html(data)
       })
     }
@@ -66,7 +73,13 @@
   </div>
 
   <div>
-    <button onclick="testEndpoint()">Test Endpoint Response</button>
+    <button onclick="importInventory()">Import Inventory</button>
+    <br /><br />
+    <div><code id="result"></code></div>
+  </div>
+
+  <div>
+    <button onclick="importInvoices()">Import Invoices</button>
     <br /><br />
     <div><code id="result"></code></div>
   </div>
