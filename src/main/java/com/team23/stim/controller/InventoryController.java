@@ -435,7 +435,7 @@ public class InventoryController {
 			DataService service = helper.getDataService(realmId, accessToken);
 			
 			List<List<String>> records = new ArrayList<>();
-			try (BufferedReader br = new BufferedReader(new FileReader("C:\\Users\\Nick Alvarez\\OneDrive - nevada.unr.edu\\2020 Fall\\CS425\\Team 23\\OnlineRetailInvoices\\Testing\\Inventory\\OO3_Inventory.csv")))
+			try (BufferedReader br = new BufferedReader(new FileReader(/*"C:\\Users\\Nick Alvarez\\OneDrive - nevada.unr.edu\\2020 Fall\\CS425\\Team 23\\OnlineRetailInvoices\\Testing\\Inventory\\OO3_Inventory.csv"*/"OO3_Inventory.csv")))
 			{
 				String line;
 				while ((line = br.readLine()) != null)
