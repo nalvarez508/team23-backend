@@ -193,7 +193,7 @@ public class InventoryController {
 			// Get DataService
 			DataService service = helper.getDataService(realmId, accessToken);
 			
-			String ITEM_QUERY = "select * from Invoice maxresults 10";
+			String ITEM_QUERY = "select * from Invoice maxresults 100";
 			QueryResult InvoiceList = service.executeQuery(ITEM_QUERY); //Creates QueryResult object with inventory
 			List<? extends IEntity> entities = InvoiceList.getEntities(); //Creates list of entities
 
@@ -272,6 +272,76 @@ public class InventoryController {
 
 	@ResponseBody
 	@CrossOrigin("http://localhost:3000")
+	@RequestMapping("/getItemAmounts")
+	public String getItemAmounts(@RequestHeader("access_token") String accessToken, @RequestHeader("realm_id") String realmId, @RequestParam("name") String name)
+	{
+		//String realmId = (String)session.getAttribute("realmId");
+		if (StringUtils.isEmpty(realmId)) {
+			return new JSONObject().put("response", "No realm ID.  QBO calls only work if the accounting scope was passed!").toString();
+		}
+		//String accessToken = (String)session.getAttribute("access_token");
+
+		try {
+
+			// Get DataService
+			DataService service = helper.getDataService(realmId, accessToken);
+			
+			String ITEM_QUERY = "select * from Invoice maxresults 100";
+			QueryResult InvoiceList = service.executeQuery(ITEM_QUERY); //Creates QueryResult object with inventory
+			List<? extends IEntity> entities = InvoiceList.getEntities(); //Creates list of entities
+
+			//Stores entities in vector
+			Vector<Invoice> InvoiceListContainer = new Vector<Invoice>(entities.size());
+			float dataPoints[] = new float[12];
+
+			//Populates vector with invoices
+			for (int i=0; i<entities.size(); i++)
+			{
+				Invoice tempInvoice = ((Invoice)entities.get(i));
+				InvoiceListContainer.add(tempInvoice);
+			}
+
+			for (int x=0; x<InvoiceListContainer.size(); x++)
+			{
+				//Iterating through each invoice's Line items and saving values
+				List<Line> tempLineList = InvoiceListContainer.get(x).getLine();
+
+				Calendar cal = Calendar.getInstance(TimeZone.getTimeZone("Los Angeles"));
+				cal.setTime(InvoiceListContainer.get(x).getTxnDate());
+				dataPoints[cal.get(Calendar.MONTH)] = 0;
+
+				for (int y=0; y<(tempLineList.size()-1); y++)
+				{
+					if (tempLineList.get(y).getSalesItemLineDetail().getItemRef().getName() == name){
+					dataPoints[cal.get(Calendar.MONTH)] += tempLineList.get(y).getSalesItemLineDetail().getQty().intValue();
+					}
+				}
+			}
+
+			JSONArray coordinates = new JSONArray();
+			for (int z=0; z<12; z++)
+			{
+				JSONObject point = new JSONObject();
+				System.out.println("Month " + z);
+				System.out.println(dataPoints[z]);
+				point.put("month", z);
+				point.put("value", dataPoints[z]);
+				coordinates.put(point);
+			}
+
+			return coordinates.toString();
+
+		} catch (InvalidTokenException e) {
+			return new JSONObject().put("response", "InvalidToken - Refresh token and try again").toString();
+		} catch (FMSException e) {
+			List<Error> list = e.getErrorList();
+			list.forEach(error -> logger.error("Error while calling the API :: " + error.getMessage()));
+			return new JSONObject().put("response","Failed").toString();
+		}
+	}
+
+	@ResponseBody
+	@CrossOrigin("http://localhost:3000")
 	@RequestMapping("/alertCheck")
 	public String findItemsWithLowInventory(@RequestHeader("access_token") String accessToken, @RequestHeader("realm_id") String realmId)
 	{
@@ -333,7 +403,7 @@ public class InventoryController {
 	@ResponseBody
 	@CrossOrigin("http://localhost:3000")
 	@RequestMapping("/updateItem")
-	public String modifyMainItem(@RequestHeader("access_token") String accessToken, @RequestHeader("realm_id") String realmId, @RequestParam("name") String name, @RequestParam("sku") String sku, @RequestParam("price") float price, @RequestParam("qty") int qty)
+	public String modifyMainItem(@RequestHeader("access_token") String accessToken, @RequestHeader("realm_id") String realmId, @RequestParam("sku") String sku, @RequestParam("price") float price, @RequestParam("qty") int qty)
 	{
 		//String realmId = (String)session.getAttribute("realmId");
 		if (StringUtils.isEmpty(realmId)) {
@@ -440,6 +510,7 @@ public class InventoryController {
 		}
 	}
 
+	/*
 	@RequestMapping("/importInvoices")
 	public String importInvoices(HttpSession session)
 	{
@@ -469,13 +540,16 @@ public class InventoryController {
 			catch (IOException e) {System.out.println("Something went wrong!");}
 
 			//System.out.println(Arrays.toString(records.toArray()));
-			
-
+			List<List<String>> invoiceLines = new ArrayList<>();
+			int i=0;
 			for (List<String> csv : records)
 			{
 				System.out.println(csv.get(0));
 				if (!csv.get(0).contains("InvoiceNo"))
 				{
+
+					Customer c = getCustomerWithAllFields(csv.get(1));
+					Invoice invoice = getInvoiceFields(c);
 					Item myNewItem = getItemWithAllFields(service, csv.get(0), csv.get(2), Float.parseFloat(csv.get(4)), Integer.parseInt(csv.get(10)));
 					service.add(myNewItem);
 				}
@@ -491,7 +565,7 @@ public class InventoryController {
 			list.forEach(error -> logger.error("Error while calling the API :: " + error.getMessage()));
 			return new JSONObject().put("response","Failed").toString();
 		}
-	}
+	}*/
 
 	/**
 	 * Prepare Item request
@@ -528,14 +602,9 @@ public class InventoryController {
 	 * Prepare Customer request
 	 * @return
 	 */
-	private Customer getCustomerWithAllFields() {
+	private Customer getCustomerWithAllFields(String name) {
 		Customer customer = new Customer();
-		customer.setDisplayName(org.apache.commons.lang.RandomStringUtils.randomAlphanumeric(6));
-		customer.setCompanyName("ABC Corporations");
-
-		EmailAddress emailAddr = new EmailAddress();
-		emailAddr.setAddress("testconceptsample@mailinator.com");
-		customer.setPrimaryEmailAddr(emailAddr);
+		customer.setDisplayName(name);
 
 		return customer;
 	}
