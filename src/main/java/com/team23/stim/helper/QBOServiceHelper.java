@@ -48,13 +48,7 @@ public class QBOServiceHelper {
 	
 
 	
-    /**
-     * Queries data from QuickBooks
-     * 
-     * @param session
-     * @param sql
-     * @return
-     */
+    //Queries data from QuickBooks
     public List<? extends IEntity> queryData(HttpSession session, String sql) {
 
     	String realmId = (String)session.getAttribute("realmId");
@@ -72,11 +66,7 @@ public class QBOServiceHelper {
 			QueryResult queryResult = service.executeQuery(sql);
 			return queryResult.getEntities();
 		}
-	        /*
-	         * Handle 401 status code - 
-	         * If a 401 response is received, refresh tokens should be used to get a new access token,
-	         * and the API call should be tried again.
-	         */
+	        // In case of unauthorized return message
 	        catch (InvalidTokenException e) {			
 				logger.error("Error while calling executeQuery :: " + e.getMessage());
 				

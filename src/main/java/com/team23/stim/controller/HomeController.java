@@ -45,10 +45,7 @@ public class HomeController {
 	public String functions(){
 		return "functions";
 	}
-	/**
-	 * Controller mapping for connectToQuickbooks button
-	 * @return
-	 */
+	//Controller mapping for connectToQuickbooks button
 	@CrossOrigin("http://localhost:3000")
 	@RequestMapping("/connectToQuickbooks")
 	public View connectToQuickbooks(HttpSession session) {

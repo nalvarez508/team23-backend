@@ -69,19 +69,14 @@ public class InventoryController {
 
 
 	@ResponseBody
-	@CrossOrigin(origins = "http://localhost:3000")
+	@CrossOrigin("http://localhost:3000")
 	@RequestMapping("/testEndpoint")
 	public String returnStringToYou()
 	{
 		return createResponse("Endpoint call successful!");
 	}
 
-/**
-	 * API call with OAuth2 to return inventory list
-	 *
-	 * @param session
-	 * @return
-	 */
+	// Returns inventory list as JSONArray
 	@ResponseBody
 	@CrossOrigin("http://localhost:3000")
 	@RequestMapping("/inventory_list")
@@ -94,7 +89,6 @@ public class InventoryController {
 		//String accessToken = (String)session.getAttribute("access_token");
 
 		try {
-
 			// Get DataService
 			DataService service = helper.getDataService(realmId, accessToken);
 
@@ -121,7 +115,6 @@ public class InventoryController {
 				JSONObject itemDetail = new JSONObject();
 				itemDetail.put("name", InventoryListContainer.get(x).getName());
 				itemDetail.put("sku", InventoryListContainer.get(x).getSku());
-				//itemDetail.put("type", InventoryListContainer.get(x).getParentRef().getName());
 				itemDetail.put("qty", InventoryListContainer.get(x).getQtyOnHand());
 				itemDetail.put("price", InventoryListContainer.get(x).getUnitPrice());
 				itemDetailArray.put(itemDetail);
@@ -140,12 +133,7 @@ public class InventoryController {
 		}
 	}
 
-	/**
-	 *
-	 * @param session
-	 * @return
-	 */
-	
+	// Adds a new item to QBO inventory
 	@ResponseBody
 	@CrossOrigin("http://localhost:3000")
 	@RequestMapping("/createMainItem")
@@ -158,7 +146,6 @@ public class InventoryController {
 		//String accessToken = (String)session.getAttribute("access_token");
 
 		try {
-
 			// Get DataService
 			DataService service = helper.getDataService(realmId, accessToken);
 
@@ -177,6 +164,7 @@ public class InventoryController {
 		}
 	}
 
+	// Profits metric - calculates total revenue for each month by checking all invoices
 	@ResponseBody
 	@CrossOrigin("http://localhost:3000")
 	@RequestMapping("/getAllInvoices")
@@ -189,7 +177,6 @@ public class InventoryController {
 		//String accessToken = (String)session.getAttribute("access_token");
 
 		try {
-
 			// Get DataService
 			DataService service = helper.getDataService(realmId, accessToken);
 			
@@ -207,45 +194,30 @@ public class InventoryController {
 				Invoice tempInvoice = ((Invoice)entities.get(i));
 				InvoiceListContainer.add(tempInvoice);
 			}
-			//System.out.println("\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n");
 
-			JSONObject iList = new JSONObject();
-			JSONArray invoiceDetailArray = new JSONArray();
 			for (int x=0; x<InvoiceListContainer.size(); x++)
 			{
 				//Iterating through each invoice's Line items and saving values
-				JSONObject invoiceDetail = new JSONObject();
-				JSONArray lineDetailArray = new JSONArray();
 				List<Line> tempLineList = InvoiceListContainer.get(x).getLine();
-
 				Calendar cal = Calendar.getInstance(TimeZone.getTimeZone("Los Angeles"));
 				cal.setTime(InvoiceListContainer.get(x).getTxnDate());
 				dataPoints[cal.get(Calendar.MONTH)] = 0;
 
 				for (int y=0; y<(tempLineList.size()-1); y++)
 				{
-					JSONObject lineDetail = new JSONObject();
-					lineDetail.put("itemName", tempLineList.get(y).getSalesItemLineDetail().getItemRef().getName());
+					/*lineDetail.put("itemName", tempLineList.get(y).getSalesItemLineDetail().getItemRef().getName());
 					lineDetail.put("qty", tempLineList.get(y).getSalesItemLineDetail().getQty());
 					lineDetail.put("unitPrice", tempLineList.get(y).getSalesItemLineDetail().getUnitPrice());
-
-
-					lineDetail.put("totalPurchasePrice", tempLineList.get(y).getAmount());
+					lineDetail.put("totalPurchasePrice", tempLineList.get(y).getAmount());*/
 					dataPoints[cal.get(Calendar.MONTH)] += tempLineList.get(y).getAmount().floatValue();
-					lineDetailArray.put(lineDetail);
-					//System.out.println(lineDetailArray.toString());
+					//lineDetailArray.put(lineDetail);
 				}
 				//Adding Line array to JSONObject and getting transaction date
-				String invoiceInfo = "Invoice ID " + InvoiceListContainer.get(x).getId();
+				/*String invoiceInfo = "Invoice ID " + InvoiceListContainer.get(x).getId();
 				invoiceDetail.put(invoiceInfo, lineDetailArray);
 				invoiceDetail.put("txnDate", InvoiceListContainer.get(x).getTxnDate());
-				invoiceDetailArray.put(invoiceDetail);
-				//System.out.println(invoiceDetailArray.toString());
+				invoiceDetailArray.put(invoiceDetail);*/
 			}
-			//iList.put(itemDetailArray);
-
-			// Return response back
-			//return createResponse(outputMessage);
 
 			JSONArray coordinates = new JSONArray();
 			for (int z=0; z<12; z++)
@@ -258,7 +230,6 @@ public class InventoryController {
 				coordinates.put(point);
 			}
 
-
 			return coordinates.toString();
 
 		} catch (InvalidTokenException e) {
@@ -270,6 +241,7 @@ public class InventoryController {
 		}
 	}
 
+	// Stock level metric. Checks each invoice for presence of item and tallies how much was sold
 	@ResponseBody
 	@CrossOrigin("http://localhost:3000")
 	@RequestMapping("/getItemAmounts")
@@ -282,7 +254,6 @@ public class InventoryController {
 		//String accessToken = (String)session.getAttribute("access_token");
 
 		try {
-
 			// Get DataService
 			DataService service = helper.getDataService(realmId, accessToken);
 			
@@ -340,6 +311,7 @@ public class InventoryController {
 		}
 	}
 
+	// Finds all items with quantity below threshold value
 	@ResponseBody
 	@CrossOrigin("http://localhost:3000")
 	@RequestMapping("/alertCheck")
@@ -353,7 +325,6 @@ public class InventoryController {
 		//String accessToken = (String)session.getAttribute("access_token");
 
 		try {
-
 			// Get DataService
 			DataService service = helper.getDataService(realmId, accessToken);
 
@@ -369,7 +340,7 @@ public class InventoryController {
 				Item tempItem = ((Item)entities.get(i));
 				if (tempItem.getType() != ItemTypeEnum.CATEGORY){ //Items of type CATEGORY are skipped
 					if (tempItem.getQtyOnHand() != null){ //The item has a QtyOnHand value
-						if (tempItem.getQtyOnHand().compareTo(new BigDecimal(threshold)) <= 0){
+						if (tempItem.getQtyOnHand().compareTo(new BigDecimal(threshold)) <= 0){ //The qty is lower than threshold
 							InventoryListContainer.add(tempItem);
 						}
 					}
@@ -400,6 +371,7 @@ public class InventoryController {
 		}
 	}
 
+	// Modifies item attributes (price, qty)
 	@ResponseBody
 	@CrossOrigin("http://localhost:3000")
 	@RequestMapping("/updateItem")
@@ -412,7 +384,6 @@ public class InventoryController {
 		//String accessToken = (String)session.getAttribute("access_token");
 
 		try {
-
 			// Get DataService
 			DataService service = helper.getDataService(realmId, accessToken);
 			String ITEM_QUERY = "select * from Item where sku = '" + sku + "' maxresults 99";
@@ -420,15 +391,7 @@ public class InventoryController {
 			List<? extends IEntity> entities = ItemList.getEntities(); //Creates list of entities
 			//Stores entities in vector
 			Vector<Item> InventoryListContainer = new Vector<Item>(entities.size());
-			//Populates vector with items
-			/*for (int i=0; i<entities.size(); i++)
-			{
-				Item tempItem = ((Item)entities.get(i));
-				if (tempItem.getSku() == sku){
-					InventoryListContainer.add(tempItem);
-				}
-			}*/
-			//Vector<Item> InventoryListContainer = new Vector<Item>(entities.size());
+			
 			Item itemToModify = (Item)entities.get(0);
 			itemToModify.setUnitPrice(new BigDecimal(price).setScale(2, RoundingMode.HALF_UP));
 			itemToModify.setQtyOnHand(new BigDecimal(qty));
@@ -447,6 +410,7 @@ public class InventoryController {
 		}
 	}
 
+	// Modifies threshold value for item alerts. Default 50
 	@ResponseBody
 	@CrossOrigin("http://localhost:3000")
 	@RequestMapping("/changeThreshold")
@@ -456,7 +420,7 @@ public class InventoryController {
 		return createResponse("Threshold updated.");
 	}
 
-
+	// Backend helper function to take .csv file with Inventory data and import it to QBO
 	@RequestMapping("/importInventory")
 	public String importInventory(HttpSession session)
 	{
@@ -467,10 +431,8 @@ public class InventoryController {
 		String accessToken = (String)session.getAttribute("access_token");
 
 		try {
-
 			// Get DataService
 			DataService service = helper.getDataService(realmId, accessToken);
-
 			
 			List<List<String>> records = new ArrayList<>();
 			try (BufferedReader br = new BufferedReader(new FileReader("C:\\Users\\Nick Alvarez\\OneDrive - nevada.unr.edu\\2020 Fall\\CS425\\Team 23\\OnlineRetailInvoices\\Testing\\Inventory\\OO3_Inventory.csv")))
@@ -485,9 +447,6 @@ public class InventoryController {
 			catch (FileNotFoundException e) {System.out.println("Where is your file?");}
 			catch (IOException e) {System.out.println("Something went wrong!");}
 
-			//System.out.println(Arrays.toString(records.toArray()));
-			
-
 			for (List<String> csv : records)
 			{
 				System.out.println(csv.get(2));
@@ -498,7 +457,6 @@ public class InventoryController {
 				}
 			}
 
-			
 			return "Great!";
 
 		} catch (InvalidTokenException e) {
@@ -510,7 +468,8 @@ public class InventoryController {
 		}
 	}
 
-	/*
+	/* Backend helper function to take .csv file with Invoice data and import it to QBO.
+		 Never did get this working with Invoices with multiple SalesLineItemDetail attributes
 	@RequestMapping("/importInvoices")
 	public String importInvoices(HttpSession session)
 	{
@@ -521,10 +480,8 @@ public class InventoryController {
 		String accessToken = (String)session.getAttribute("access_token");
 
 		try {
-
 			// Get DataService
 			DataService service = helper.getDataService(realmId, accessToken);
-
 			
 			List<List<String>> records = new ArrayList<>();
 			try (BufferedReader br = new BufferedReader(new FileReader("C:\\Users\\Nick Alvarez\\OneDrive - nevada.unr.edu\\2020 Fall\\CS425\\Team 23\\OnlineRetailInvoices\\Testing\\Inventory\\OO3_Invoices.csv")))
@@ -539,7 +496,6 @@ public class InventoryController {
 			catch (FileNotFoundException e) {System.out.println("Where is your file?");}
 			catch (IOException e) {System.out.println("Something went wrong!");}
 
-			//System.out.println(Arrays.toString(records.toArray()));
 			List<List<String>> invoiceLines = new ArrayList<>();
 			int i=0;
 			for (List<String> csv : records)
@@ -550,11 +506,9 @@ public class InventoryController {
 
 					Customer c = getCustomerWithAllFields(csv.get(1));
 					Invoice invoice = getInvoiceFields(c);
-					Item myNewItem = getItemWithAllFields(service, csv.get(0), csv.get(2), Float.parseFloat(csv.get(4)), Integer.parseInt(csv.get(10)));
-					service.add(myNewItem);
+					service.add(invoice);
 				}
 			}
-
 			
 			return "Great!";
 
@@ -567,12 +521,7 @@ public class InventoryController {
 		}
 	}*/
 
-	/**
-	 * Prepare Item request
-	 * @param service
-	 * @return
-	 * @throws FMSException
-	 */
+	//Creates item object with given parameters
 	private Item getItemWithAllFields(DataService service, String name, String sku, float price, int qty) throws FMSException {
 		Item item = new Item();
 		item.setType(ItemTypeEnum.INVENTORY);
@@ -598,10 +547,7 @@ public class InventoryController {
 		return item;
 	}
 
-	/**
-	 * Prepare Customer request
-	 * @return
-	 */
+	// Creates customer object with given parameters
 	private Customer getCustomerWithAllFields(String name) {
 		Customer customer = new Customer();
 		customer.setDisplayName(name);
@@ -609,12 +555,7 @@ public class InventoryController {
 		return customer;
 	}
 
-	/**OUT
-	 * Prepare Invoice Request
-	 * @param customer
-	 * @param item
-	 * @return
-	 */
+	// Creates an invoice object - does not support multiple line item details
 	private Invoice getInvoiceFields(Customer customer, Item item) {
 		Invoice invoice = new Invoice();
 		invoice.setCustomerRef(createRef(customer));
@@ -636,13 +577,7 @@ public class InventoryController {
 	}
 
 
-
-	/**
-	 * Get Income Account
-	 * @param service
-	 * @return
-	 * @throws FMSException
-	 */
+	// Get income account
 	private Account getIncomeBankAccount(DataService service) throws FMSException {
 		QueryResult queryResult = service.executeQuery(String.format(ACCOUNT_QUERY, AccountTypeEnum.INCOME.value(), AccountSubTypeEnum.SALES_OF_PRODUCT_INCOME.value()));
 		List<? extends IEntity> entities = queryResult.getEntities();
@@ -652,12 +587,7 @@ public class InventoryController {
 		return createIncomeBankAccount(service);
 	}
 
-	/**
-	 * Create Income Account
-	 * @param service
-	 * @return
-	 * @throws FMSException
-	 */
+	// Create new income account if user does not have one
 	private Account createIncomeBankAccount(DataService service) throws FMSException {
 		Account account = new Account();
 		account.setName("Income " + RandomStringUtils.randomAlphabetic(5));
@@ -667,12 +597,7 @@ public class InventoryController {
 		return service.add(account);
 	}
 
-	/**
-	 * Get Expense Account
-	 * @param service
-	 * @return
-	 * @throws FMSException
-	 */
+	// Get expense account
 	private Account getExpenseBankAccount(DataService service) throws FMSException {
 		QueryResult queryResult = service.executeQuery(String.format(ACCOUNT_QUERY, AccountTypeEnum.COST_OF_GOODS_SOLD.value(), AccountSubTypeEnum.SUPPLIES_MATERIALS_COGS.value()));
 		List<? extends IEntity> entities = queryResult.getEntities();
@@ -682,12 +607,7 @@ public class InventoryController {
 		return createExpenseBankAccount(service);
 	}
 
-	/**
-	 * Create Expense Account
-	 * @param service
-	 * @return
-	 * @throws FMSException
-	 */
+	// Create new expense account if user does not have one
 	private Account createExpenseBankAccount(DataService service) throws FMSException {
 		Account account = new Account();
 		account.setName("Expense " + RandomStringUtils.randomAlphabetic(5));
@@ -697,13 +617,7 @@ public class InventoryController {
 		return service.add(account);
 	}
 
-
-	/**
-	 * Get Asset Account
-	 * @param service
-	 * @return
-	 * @throws FMSException
-	 */
+	// Get asset account
 	private Account getAssetAccount(DataService service)  throws FMSException{
 		QueryResult queryResult = service.executeQuery(String.format(ACCOUNT_QUERY, AccountTypeEnum.OTHER_CURRENT_ASSET.value(), AccountSubTypeEnum.INVENTORY.value()));
 		List<? extends IEntity> entities = queryResult.getEntities();
@@ -713,12 +627,7 @@ public class InventoryController {
 		return createOtherCurrentAssetAccount(service);
 	}
 
-	/**
-	 * Create Asset Account
-	 * @param service
-	 * @return
-	 * @throws FMSException
-	 */
+	// Create asset account
 	private Account createOtherCurrentAssetAccount(DataService service) throws FMSException {
 		Account account = new Account();
 		account.setName("Other Current Asset " + RandomStringUtils.randomAlphanumeric(5));
@@ -728,23 +637,14 @@ public class InventoryController {
 		return service.add(account);
 	}
 
-	/**
-	 * Creates reference type for an entity
-	 * 
-	 * @param entity - IntuitEntity object inherited by each entity
-	 * @return
-	 */
+	// Creates reference type for given entity, like an Account type
 	private ReferenceType createRef(IntuitEntity entity) {
 		ReferenceType referenceType = new ReferenceType();
 		referenceType.setValue(entity.getId());
 		return referenceType;
 	}
 
-	/**
-	 * Map object to json string
-	 * @param entity
-	 * @return
-	 */
+	// Backend helper function to return data to webpages on 8080
 	private String createResponse(Object entity) {
 		ObjectMapper mapper = new ObjectMapper();
 		String jsonInString;
@@ -762,6 +662,4 @@ public class InventoryController {
 		logger.error("Exception while calling QBO ", e);
 		return new JSONObject().put("response","Failed").toString();
 	}
-
-
 }

@@ -42,22 +42,10 @@ public class CallbackController {
         json.put("refresh_token", myRefreshToken);
         json.put("realm_id", myRealmId);
 
-        //System.out.print(json.toString());
         return json.toString();
     }
     
-    /**
-     *  This is the redirect handler you configure in your app on developer.intuit.com
-     *  The Authorization code has a short lifetime.
-     *  Hence Unless a user action is quick and mandatory, proceed to exchange the Authorization Code for
-     *  BearerToken
-     *      
-     * @param auth_code
-     * @param state
-     * @param realmId
-     * @param session
-     * @return
-     */
+    //Turns auth token into bearer token
     @RequestMapping("/oauth2redirect")
     public String callBackFromOAuth(@RequestParam("code") String authCode, @RequestParam("state") String state, @RequestParam(value = "realmId", required = false) String realmId, HttpSession session) {   
         logger.info("inside oauth2redirect of sample"  );
@@ -81,10 +69,6 @@ public class CallbackController {
                 myRefreshToken = bearerTokenResponse.getRefreshToken();
                 System.out.println(myAccessToken);
                 System.out.println(myRealmId);
-
-                //QBOController.createSession(session);
-	    
-	            // Update your Data store here with user's AccessToken and RefreshToken along with the realmId
 
 	            return "connected";
 	        }

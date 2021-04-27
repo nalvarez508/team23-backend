@@ -53,12 +53,7 @@ public class QBOController {
 		return sessionInfo;
 	}
 
-	/**
-     * Sample QBO API call using OAuth2 tokens
-     * 
-     * @param session
-     * @return
-     */
+	//Return company information
 	@ResponseBody
     @RequestMapping("/getCompanyInfo")
     public String callQBOCompanyInfo(HttpSession session) {
@@ -70,22 +65,15 @@ public class QBOController {
     	String accessToken = (String)session.getAttribute("access_token");
     	
         try {
-        	
-        	
-        	//get DataService
     		DataService service = helper.getDataService(realmId, accessToken);
 			
-			// get all companyinfo
+			// Get all company info
 			String sql = "select * from companyinfo";
 			QueryResult queryResult = service.executeQuery(sql);
 			return processResponse(failureMsg, queryResult);
 			
 		}
-	        /*
-	         * Handle 401 status code - 
-	         * If a 401 response is received, refresh tokens should be used to get a new access token,
-	         * and the API call should be tried again.
-	         */
+	        // In case of unauthorized return message
 	        catch (InvalidTokenException e) {			
 				logger.error("Error while calling executeQuery :: " + e.getMessage());
 				
@@ -103,7 +91,7 @@ public class QBOController {
 		            logger.info("calling companyinfo using new tokens");
 		            DataService service = helper.getDataService(realmId, accessToken);
 					
-					// get all companyinfo
+					// Get all companyinfo
 					String sql = "select * from companyinfo";
 					QueryResult queryResult = service.executeQuery(sql);
 					return processResponse(failureMsg, queryResult);
@@ -140,8 +128,4 @@ public class QBOController {
 		}
 		return failureMsg;
 	}
-
-
-
-    
 }
