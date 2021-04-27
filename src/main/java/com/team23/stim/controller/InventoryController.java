@@ -283,8 +283,9 @@ public class InventoryController {
 
 				for (int y=0; y<(tempLineList.size()-1); y++)
 				{
-					if (tempLineList.get(y).getSalesItemLineDetail().getItemRef().getName() == name){
-					dataPoints[cal.get(Calendar.MONTH)] += tempLineList.get(y).getSalesItemLineDetail().getQty().intValue();
+					if (tempLineList.get(y).getSalesItemLineDetail().getItemRef().getName().contains(name))
+					{
+						dataPoints[cal.get(Calendar.MONTH)] += ((tempLineList.get(y).getSalesItemLineDetail().getQty() != null) ? tempLineList.get(y).getSalesItemLineDetail().getQty().intValue() : 0);
 					}
 				}
 			}
