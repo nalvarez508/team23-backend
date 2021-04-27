@@ -346,7 +346,7 @@ public class InventoryController {
 			// Get DataService
 			DataService service = helper.getDataService(realmId, accessToken);
 
-			String ITEM_QUERY = "select * from Item where sku = " + sku + " maxresults 1";
+			String ITEM_QUERY = "select * from Item where sku = '" + sku + "' maxresults 1";
 			QueryResult ItemList = service.executeQuery(ITEM_QUERY); //Creates QueryResult object with inventory
 			List<? extends IEntity> entities = ItemList.getEntities(); //Creates list of entities
 
