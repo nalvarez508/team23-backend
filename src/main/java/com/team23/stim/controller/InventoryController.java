@@ -3,6 +3,7 @@ package com.team23.stim.controller;
 import java.math.BigDecimal;
 import java.math.RoundingMode;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.List;
@@ -343,8 +344,17 @@ public class InventoryController {
 			List<? extends IEntity> entities = ItemList.getEntities(); //Creates list of entities
 
 			//Stores entities in vector
+			Vector<Item> InventoryListContainer = new Vector<Item>(entities.size());
+			//Populates vector with items
+			for (int i=0; i<entities.size(); i++)
+			{
+				Item tempItem = ((Item)entities.get(i));
+				if (tempItem.getSku() == sku){
+					InventoryListContainer.add(tempItem);
+				}
+			}
 			//Vector<Item> InventoryListContainer = new Vector<Item>(entities.size());
-			Item itemToModify = (Item)entities.get(0);
+			Item itemToModify = InventoryListContainer.get(0);
 			itemToModify.setUnitPrice(new BigDecimal(price).setScale(2, RoundingMode.HALF_UP));
 			itemToModify.setQtyOnHand(new BigDecimal(qty));
 			Item savedItem = service.update(itemToModify);
@@ -369,6 +379,113 @@ public class InventoryController {
 	{
 		threshold = t;
 		return createResponse("Threshold updated.");
+	}
+
+
+	@RequestMapping("/importInventory")
+	public String importInventory(HttpSession session)
+	{
+		String realmId = (String)session.getAttribute("realmId");
+		if (StringUtils.isEmpty(realmId)) {
+			return new JSONObject().put("response", "No realm ID.  QBO calls only work if the accounting scope was passed!").toString();
+		}
+		String accessToken = (String)session.getAttribute("access_token");
+
+		try {
+
+			// Get DataService
+			DataService service = helper.getDataService(realmId, accessToken);
+
+			
+			List<List<String>> records = new ArrayList<>();
+			try (BufferedReader br = new BufferedReader(new FileReader("C:\\Users\\Nick Alvarez\\OneDrive - nevada.unr.edu\\2020 Fall\\CS425\\Team 23\\OnlineRetailInvoices\\Testing\\Inventory\\OO3_Inventory.csv")))
+			{
+				String line;
+				while ((line = br.readLine()) != null)
+				{
+					String[] values = line.split(",");
+					records.add(Arrays.asList(values));
+				}
+			}
+			catch (FileNotFoundException e) {System.out.println("Where is your file?");}
+			catch (IOException e) {System.out.println("Something went wrong!");}
+
+			//System.out.println(Arrays.toString(records.toArray()));
+			
+
+			for (List<String> csv : records)
+			{
+				System.out.println(csv.get(2));
+				if (!csv.get(2).contains("SKU"))
+				{
+					Item myNewItem = getItemWithAllFields(service, csv.get(0), csv.get(2), Float.parseFloat(csv.get(4)), Integer.parseInt(csv.get(10)));
+					service.add(myNewItem);
+				}
+			}
+
+			
+			return "Great!";
+
+		} catch (InvalidTokenException e) {
+			return new JSONObject().put("response", "InvalidToken - Refresh token and try again").toString();
+		} catch (FMSException e) {
+			List<Error> list = e.getErrorList();
+			list.forEach(error -> logger.error("Error while calling the API :: " + error.getMessage()));
+			return new JSONObject().put("response","Failed").toString();
+		}
+	}
+
+	@RequestMapping("/importInvoices")
+	public String importInvoices(HttpSession session)
+	{
+		String realmId = (String)session.getAttribute("realmId");
+		if (StringUtils.isEmpty(realmId)) {
+			return new JSONObject().put("response", "No realm ID.  QBO calls only work if the accounting scope was passed!").toString();
+		}
+		String accessToken = (String)session.getAttribute("access_token");
+
+		try {
+
+			// Get DataService
+			DataService service = helper.getDataService(realmId, accessToken);
+
+			
+			List<List<String>> records = new ArrayList<>();
+			try (BufferedReader br = new BufferedReader(new FileReader("C:\\Users\\Nick Alvarez\\OneDrive - nevada.unr.edu\\2020 Fall\\CS425\\Team 23\\OnlineRetailInvoices\\Testing\\Inventory\\OO3_Invoices.csv")))
+			{
+				String line;
+				while ((line = br.readLine()) != null)
+				{
+					String[] values = line.split(",");
+					records.add(Arrays.asList(values));
+				}
+			}
+			catch (FileNotFoundException e) {System.out.println("Where is your file?");}
+			catch (IOException e) {System.out.println("Something went wrong!");}
+
+			//System.out.println(Arrays.toString(records.toArray()));
+			
+
+			for (List<String> csv : records)
+			{
+				System.out.println(csv.get(2));
+				if (!csv.get(2).contains("SKU"))
+				{
+					Item myNewItem = getItemWithAllFields(service, csv.get(0), csv.get(2), Float.parseFloat(csv.get(4)), Integer.parseInt(csv.get(10)));
+					service.add(myNewItem);
+				}
+			}
+
+			
+			return "Great!";
+
+		} catch (InvalidTokenException e) {
+			return new JSONObject().put("response", "InvalidToken - Refresh token and try again").toString();
+		} catch (FMSException e) {
+			List<Error> list = e.getErrorList();
+			list.forEach(error -> logger.error("Error while calling the API :: " + error.getMessage()));
+			return new JSONObject().put("response","Failed").toString();
+		}
 	}
 
 	/**
