@@ -345,23 +345,21 @@ public class InventoryController {
 
 			// Get DataService
 			DataService service = helper.getDataService(realmId, accessToken);
-
-			String ITEM_QUERY = "select * from Item where sku = '" + sku + "' maxresults 1";
+			String ITEM_QUERY = "select * from Item where sku = '" + sku + "' maxresults 99";
 			QueryResult ItemList = service.executeQuery(ITEM_QUERY); //Creates QueryResult object with inventory
 			List<? extends IEntity> entities = ItemList.getEntities(); //Creates list of entities
-
 			//Stores entities in vector
 			Vector<Item> InventoryListContainer = new Vector<Item>(entities.size());
 			//Populates vector with items
-			for (int i=0; i<entities.size(); i++)
+			/*for (int i=0; i<entities.size(); i++)
 			{
 				Item tempItem = ((Item)entities.get(i));
 				if (tempItem.getSku() == sku){
 					InventoryListContainer.add(tempItem);
 				}
-			}
+			}*/
 			//Vector<Item> InventoryListContainer = new Vector<Item>(entities.size());
-			Item itemToModify = InventoryListContainer.get(0);
+			Item itemToModify = (Item)entities.get(0);
 			itemToModify.setUnitPrice(new BigDecimal(price).setScale(2, RoundingMode.HALF_UP));
 			itemToModify.setQtyOnHand(new BigDecimal(qty));
 			Item savedItem = service.update(itemToModify);
