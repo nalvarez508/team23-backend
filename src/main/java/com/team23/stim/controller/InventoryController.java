@@ -246,13 +246,19 @@ public class InventoryController {
 			// Return response back
 			//return createResponse(outputMessage);
 
+			JSONArray coordinates = new JSONArray();
 			for (int z=0; z<12; z++)
 			{
+				JSONObject point = new JSONObject();
 				System.out.println("Month " + z);
 				System.out.println(dataPoints[z]);
+				point.put("month", z);
+				point.put("value", dataPoints[z]);
+				coordinates.put(point);
 			}
 
-			return invoiceDetailArray.toString();
+
+			return coordinates.toString();
 
 		} catch (InvalidTokenException e) {
 			return new JSONObject().put("response", "InvalidToken - Refresh token and try again").toString();
@@ -326,7 +332,7 @@ public class InventoryController {
 	@ResponseBody
 	@CrossOrigin("http://localhost:3000")
 	@RequestMapping("/updateItem")
-	public String modifyMainItem(@RequestHeader("access_token") String accessToken, @RequestHeader("realm_id") String realmId, @RequestParam("sku") String sku, @RequestParam("price") float price, @RequestParam("qty") int qty)
+	public String modifyMainItem(@RequestHeader("access_token") String accessToken, @RequestHeader("realm_id") String realmId, @RequestParam("name") String name, @RequestParam("sku") String sku, @RequestParam("price") float price, @RequestParam("qty") int qty)
 	{
 		//String realmId = (String)session.getAttribute("realmId");
 		if (StringUtils.isEmpty(realmId)) {
@@ -469,7 +475,7 @@ public class InventoryController {
 			for (List<String> csv : records)
 			{
 				System.out.println(csv.get(2));
-				if (!csv.get(2).contains("SKU"))
+				if (!csv.get(0).contains("InvoiceNo"))
 				{
 					Item myNewItem = getItemWithAllFields(service, csv.get(0), csv.get(2), Float.parseFloat(csv.get(4)), Integer.parseInt(csv.get(10)));
 					service.add(myNewItem);
